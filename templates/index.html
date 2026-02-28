@@ -7,113 +7,231 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        @font-face {
+            font-family: 'ArabicCustom';
+            src: url('@mainfont.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body[data-lang="ar"], body[lang="ar"] {
+            font-family: 'ArabicCustom', 'Inter', sans-serif;
+            direction: rtl;
+        }
+
+        body[data-lang="ar"] .header,
+        body[data-lang="ar"] .stats-bar,
+        body[data-lang="ar"] .folders-header,
+        body[data-lang="ar"] .controls,
+        body[data-lang="ar"] .filters {
+            text-align: right;
+        }
+
+        body[data-lang="ar"] .filter-group {
+            flex-direction: row;
+        }
+
+        body[data-lang="ar"] .todo-header {
+            flex-direction: row;
+        }
+
+        body[data-lang="ar"] .todo-actions {
+            margin-left: 0;
+            margin-right: auto;
+        }
+
+        body[data-lang="ar"] .move-folder-global-dropdown {
+            right: auto;
+            left: 0;
+        }
+    </style>
+    <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        :root {
+            --bg-primary: #f5f5f7;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #fafafa;
+            --text-primary: #1d1d1f;
+            --text-secondary: #6e6e73;
+            --text-tertiary: #86868b;
+            --border-color: #e5e5e7;
+            --border-color-light: #f0f0f2;
+            --accent-color: #0071e3;
+            --accent-hover: #0077ed;
+            --danger-color: #ff3b30;
+            --success-color: #34c759;
+            --warning-color: #ff9500;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
             min-height: 100vh;
-            color: #333;
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 24px;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 40px;
-            color: white;
+            margin-bottom: 32px;
             position: relative;
         }
 
         .header h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
         }
 
         .header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
         }
 
         .language-switcher {
             position: absolute;
             top: 0;
             right: 0;
-            background: rgba(255,255,255,0.1);
-            border-radius: 25px;
-            padding: 8px 16px;
-            backdrop-filter: blur(10px);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 4px;
         }
 
         .language-btn {
             background: none;
             border: none;
-            color: white;
+            color: var(--text-secondary);
             cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 15px;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
             font-weight: 500;
-            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            transition: all 0.15s ease;
+        }
+
+        .language-btn:hover {
+            color: var(--text-primary);
         }
 
         .language-btn.active {
-            background: rgba(255,255,255,0.2);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .telegram-enabled {
+            color: var(--success-color);
+        }
+
+        .telegram-disabled {
+            color: var(--danger-color);
+        }
+
+        .telegram-pending {
+            color: var(--warning-color);
+        }
+
+        .view-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 24px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 4px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .view-tab {
+            padding: 8px 16px;
+            border: none;
+            border-radius: var(--radius-sm);
+            background: transparent;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .view-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .view-tab.active {
+            background: var(--bg-primary);
+            color: var(--text-primary);
         }
 
         .main-content {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
             overflow: hidden;
-            backdrop-filter: blur(10px);
         }
 
         .stats-bar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 20px 24px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
-            text-align: center;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 24px;
         }
 
         .stat-item {
-            background: rgba(255,255,255,0.1);
-            padding: 15px;
-            border-radius: 10px;
-            backdrop-filter: blur(10px);
+            padding: 0;
+            background: none;
+            text-align: center;
         }
 
         .stat-number {
-            font-size: 2rem;
-            font-weight: 700;
+            font-size: 1.75rem;
+            font-weight: 600;
             display: block;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
         }
 
         .stat-label {
-            font-size: 0.9rem;
-            opacity: 0.9;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 500;
         }
 
         .controls {
-            padding: 30px;
-            border-bottom: 1px solid #eee;
+            padding: 24px;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .filters {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             margin-bottom: 20px;
             flex-wrap: wrap;
         }
@@ -121,148 +239,162 @@
         .filter-group {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .filter-group label {
             font-weight: 500;
-            color: #555;
+            color: var(--text-secondary);
             white-space: nowrap;
+            font-size: 0.85rem;
         }
 
         select, input[type="text"] {
-            padding: 10px 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            background: white;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            transition: all 0.15s ease;
+            background: var(--bg-secondary);
             min-width: 120px;
             max-width: 100%;
+            color: var(--text-primary);
+        }
+
+        select:hover, input[type="text"]:hover {
+            border-color: var(--text-tertiary);
         }
 
         select:focus, input[type="text"]:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: var(--accent-color);
         }
 
         .add-todo-form {
             display: grid;
             grid-template-columns: repeat(5, 1fr) auto;
-            gap: 15px;
+            gap: 12px;
             align-items: end;
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 4px;
         }
 
         .form-group label {
             font-weight: 500;
-            color: #555;
-            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
         }
 
         .btn {
-            padding: 12px 24px;
+            padding: 10px 18px;
             border: none;
-            border-radius: 8px;
-            font-weight: 600;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
+            transition: all 0.15s ease;
+            font-size: 0.9rem;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--accent-color);
             color: white;
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            background: var(--accent-hover);
         }
 
         .btn-secondary {
-            background: #f8f9fa;
-            color: #555;
-            border: 2px solid #e1e5e9;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
         }
 
         .btn-secondary:hover {
-            background: #e9ecef;
-            border-color: #adb5bd;
+            background: var(--bg-primary);
         }
 
         .btn-danger {
-            background: #dc3545;
+            background: var(--danger-color);
             color: white;
         }
 
         .btn-danger:hover {
-            background: #c82333;
-            transform: translateY(-2px);
+            opacity: 0.9;
         }
 
         .btn-success {
-            background: #28a745;
+            background: var(--success-color);
             color: white;
         }
 
         .btn-success:hover {
-            background: #218838;
-            transform: translateY(-2px);
+            opacity: 0.9;
         }
 
         .folders-section {
-            padding: 20px 30px;
-            border-bottom: 1px solid #eee;
-            background: #f8f9fa;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
         }
 
         .folders-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
+        }
+
+        .folders-header h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
         }
 
         .folders-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
         }
 
         .folder-card {
-            background: white;
-            border: 2px solid #e1e5e9;
-            border-radius: 12px;
-            padding: 15px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.15s ease;
             position: relative;
         }
 
         .folder-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: var(--accent-color);
         }
 
         .folder-card.active {
-            border-color: #667eea;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            border-color: var(--accent-color);
+            background: var(--bg-secondary);
+        }
+
+        .folder-card.active .folder-name {
+            color: var(--accent-color);
         }
 
         .folder-icon {
-            font-size: 2rem;
-            margin-bottom: 10px;
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            color: var(--text-tertiary);
+        }
+
+        .folder-card.active .folder-icon {
+            color: var(--accent-color);
         }
 
         .folder-name, .todo-title, .todo-description {
@@ -274,29 +406,33 @@
             max-width: 100%;
         }
         .folder-name {
-            max-width: 200px;
+            max-width: 180px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-primary);
         }
         .todo-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 5px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 4px;
         }
         .todo-description {
-            color: #6c757d;
-            margin-bottom: 15px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
             line-height: 1.5;
+            font-size: 0.9rem;
         }
 
         .folder-count {
-            font-size: 0.9rem;
-            opacity: 0.8;
+            font-size: 0.8rem;
+            color: var(--text-tertiary);
         }
 
         .folder-actions {
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 8px;
+            right: 8px;
             display: none;
         }
 
@@ -305,157 +441,159 @@
         }
 
         .folder-actions button {
-            background: rgba(255,255,255,0.9);
-            border: none;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            width: 24px;
+            height: 24px;
             cursor: pointer;
-            font-size: 0.8rem;
-            color: #dc3545;
+            font-size: 0.75rem;
+            color: var(--danger-color);
+        }
+
+        .folder-actions button:hover {
+            border-color: var(--danger-color);
         }
 
         .add-folder-btn {
-            background: #e9ecef;
-            border: 2px dashed #adb5bd;
-            border-radius: 12px;
-            padding: 15px;
+            background: var(--bg-secondary);
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.15s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            color: #6c757d;
+            color: var(--text-secondary);
         }
 
         .add-folder-btn:hover {
-            background: #dee2e6;
-            border-color: #6c757d;
+            border-color: var(--text-tertiary);
+            color: var(--text-primary);
         }
 
         .todos-container {
-            padding: 30px;
+            padding: 24px;
         }
 
         .todo-item {
-            background: white;
-            border: 2px solid #e1e5e9;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            transition: all 0.3s ease;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: all 0.15s ease;
             position: relative;
-            overflow: hidden;
         }
 
         .todo-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            border-color: #667eea;
+            border-color: var(--accent-color);
         }
 
         .todo-item.completed {
-            background: #f8f9fa;
-            border-color: #28a745;
+            background: var(--bg-tertiary);
         }
 
         .todo-item.completed .todo-title {
             text-decoration: line-through;
-            color: #6c757d;
+            color: var(--text-tertiary);
         }
 
         .todo-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .todo-meta {
             display: flex;
-            gap: 15px;
+            gap: 8px;
             align-items: center;
             flex-wrap: wrap;
         }
 
         .priority-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 0.7rem;
+            font-weight: 500;
             text-transform: uppercase;
+            letter-spacing: 0.02em;
         }
 
         .priority-high {
-            background: #ff6b6b;
-            color: white;
+            background: rgba(255, 59, 48, 0.1);
+            color: var(--danger-color);
         }
 
         .priority-medium {
-            background: #feca57;
-            color: #333;
+            background: rgba(255, 149, 0, 0.1);
+            color: var(--warning-color);
         }
 
         .priority-low {
-            background: #48dbfb;
-            color: white;
+            background: rgba(52, 199, 89, 0.1);
+            color: var(--success-color);
         }
 
         .category-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            background: #e9ecef;
-            color: #495057;
+            padding: 3px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 0.7rem;
+            font-weight: 500;
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
         }
 
         .folder-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 0.7rem;
+            font-weight: 500;
+            background: var(--accent-color);
             color: white;
         }
 
         .todo-actions {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             margin-left: auto;
         }
 
         .btn-sm {
-            padding: 8px 12px;
+            padding: 6px 10px;
             font-size: 0.8rem;
         }
 
         .empty-state {
             text-align: center;
             padding: 60px 20px;
-            color: #6c757d;
+            color: var(--text-secondary);
         }
 
         .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            opacity: 0.5;
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.4;
         }
 
         .loading {
             text-align: center;
             padding: 40px;
-            color: #6c757d;
+            color: var(--text-secondary);
         }
 
         .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
+            border: 2px solid var(--border-color-light);
+            border-top: 2px solid var(--accent-color);
             border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+            width: 24px;
+            height: 24px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
         }
 
         @keyframes spin {
@@ -464,16 +602,16 @@
         }
 
         .fade-in {
-            animation: fadeIn 0.5s ease-in;
+            animation: fadeIn 0.3s ease-out;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .slide-in {
-            animation: slideIn 0.3s ease-out;
+            animation: slideIn 0.2s ease-out;
         }
 
         @keyframes slideIn {
@@ -489,18 +627,18 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            backdrop-filter: blur(5px);
+            background-color: rgba(0,0,0,0.4);
         }
 
         .modal-content {
-            background-color: white;
+            background-color: var(--bg-secondary);
             margin: 10% auto;
-            padding: 30px;
-            border-radius: 15px;
+            padding: 24px;
+            border-radius: var(--radius-lg);
             width: 90%;
-            max-width: 500px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            max-width: 440px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
         }
 
         .modal-header {
@@ -510,15 +648,28 @@
             margin-bottom: 20px;
         }
 
+        .modal-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
         .close {
-            color: #aaa;
-            font-size: 28px;
-            font-weight: bold;
+            color: var(--text-tertiary);
+            font-size: 24px;
             cursor: pointer;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            transition: all 0.15s ease;
         }
 
         .close:hover {
-            color: #000;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
         }
 
         .form-row {
@@ -533,7 +684,7 @@
 
         @media (max-width: 768px) {
             .header h1 {
-                font-size: 2rem;
+                font-size: 1.5rem;
             }
 
             .add-todo-form {
@@ -553,7 +704,7 @@
 
             .todo-header {
                 flex-direction: column;
-                gap: 10px;
+                gap: 8px;
             }
 
             .todo-actions {
@@ -572,6 +723,34 @@
             .form-row {
                 flex-direction: column;
             }
+
+            /* Responsive Kanban */
+            .kanban-container {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .suggested-tasks-container {
+                flex-direction: column;
+            }
+
+            .suggested-task-card {
+                min-width: 100%;
+                max-width: 100%;
+            }
+
+            .kanban-column {
+                max-height: none;
+            }
+
+            .view-tabs {
+                flex-wrap: wrap;
+            }
+
+            .view-tab {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
         }
 
         @media (max-width: 600px) {
@@ -585,13 +764,15 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            padding: 15px 20px;
-            border-radius: 8px;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
             color: white;
             font-weight: 500;
+            font-size: 0.9rem;
             z-index: 1000;
             transform: translateX(100%);
-            transition: transform 0.3s ease;
+            transition: transform 0.2s ease;
+            box-shadow: var(--shadow-md);
         }
 
         .notification.show {
@@ -599,15 +780,15 @@
         }
 
         .notification.success {
-            background: #28a745;
+            background: var(--success-color);
         }
 
         .notification.error {
-            background: #dc3545;
+            background: var(--danger-color);
         }
 
         .notification.info {
-            background: #17a2b8;
+            background: var(--accent-color);
         }
 
         /* Limitar ancho del select de carpetas en el formulario de tareas */
@@ -648,24 +829,301 @@
             left: 0;
             top: 0;
             min-width: 180px;
-            background: white;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.13);
-            border-radius: 8px;
+            background: var(--bg-secondary);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
             z-index: 99999;
             max-height: 260px;
             overflow-y: auto;
-            padding: 6px 0;
-            animation: fadeIn 0.18s;
+            padding: 4px;
+            animation: fadeIn 0.15s;
         }
         .move-folder-global-dropdown .move-folder-option {
-            padding: 8px 18px;
+            padding: 8px 12px;
             cursor: pointer;
-            border-radius: 5px;
-            transition: background 0.2s;
+            border-radius: var(--radius-sm);
+            transition: background 0.15s;
             white-space: nowrap;
+            font-size: 0.9rem;
+            color: var(--text-primary);
         }
         .move-folder-global-dropdown .move-folder-option:hover {
-            background: #f0f0fa;
+            background: var(--bg-tertiary);
+        }
+
+        /* Kanban Board Styles */
+        .kanban-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            padding: 24px;
+            background: var(--bg-tertiary);
+            align-items: start;
+        }
+
+        .suggested-tasks-section {
+            grid-column: 1 / -1;
+            margin-bottom: 8px;
+        }
+
+        .suggested-tasks-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 0 4px;
+        }
+
+        .suggested-tasks-header h3 {
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .suggested-tasks-container {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 8px 4px;
+            min-height: 120px;
+        }
+
+        .suggested-task-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            min-width: 240px;
+            max-width: 280px;
+            cursor: grab;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
+        }
+
+        .suggested-task-card:hover {
+            border-color: var(--accent-color);
+        }
+
+        .suggested-task-card.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+
+        .suggested-task-title {
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            font-size: 0.95rem;
+        }
+
+        .suggested-task-description {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .suggested-task-meta {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .suggested-task-badge {
+            padding: 3px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .suggested-empty {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-secondary);
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+
+        .kanban-column {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            display: flex;
+            flex-direction: column;
+            min-height: 400px;
+            overflow: visible;
+            position: relative;
+        }
+
+        .kanban-header {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+        }
+
+        .kanban-header h3 {
+            margin: 0;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .kanban-header .count {
+            background: var(--bg-tertiary);
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .kanban-cards {
+            padding: 12px;
+            background: var(--bg-tertiary);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .kanban-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            margin-bottom: 0;
+            cursor: grab;
+            transition: all 0.15s ease;
+        }
+
+        .kanban-card:hover {
+            border-color: var(--accent-color);
+        }
+
+        .kanban-card.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+
+        .kanban-column.drag-over .kanban-cards {
+            background: var(--bg-primary);
+        }
+
+        .kanban-card-title {
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+        }
+
+        .kanban-card-description {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .kanban-card-meta {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .kanban-card-badge {
+            padding: 3px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        /* Archive View Styles */
+        .archive-container {
+            padding: 24px;
+        }
+
+        .archive-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .archive-header h2 {
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .archive-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .archive-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .archive-empty i {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.4;
+        }
+
+        .archive-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-left: 3px solid var(--success-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: all 0.15s ease;
+        }
+
+        .archive-item:hover {
+            border-color: var(--success-color);
+        }
+
+        .archive-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .archive-item-title {
+            font-weight: 500;
+            color: var(--text-primary);
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        .archive-item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .archive-item-meta {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
         }
     </style>
 </head>
@@ -674,10 +1132,31 @@
         <div class="header">
             <div class="language-switcher">
                 <button class="language-btn active" data-lang="en">EN</button>
-                <button class="language-btn" data-lang="es">ES</button>
+                <button class="language-btn" data-lang="ar">عربي</button>
             </div>
             <h1><i class="fas fa-tasks"></i> <span data-i18n="title">TaskMaster</span></h1>
             <p data-i18n="subtitle">Manage your tasks efficiently and organized</p>
+            <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 5px;">
+                <i class="fas fa-keyboard"></i> <span data-i18n="shortcuts.hint">Press <strong>Ctrl+N</strong> to quickly add a task</span>
+            </p>
+            <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 5px;">
+                <i class="fas fa-robot" id="telegram-status-icon"></i> <span id="telegram-status-text">Checking bot status...</span>
+            </p>
+        </div>
+
+        <div class="view-tabs">
+            <button class="view-tab active" data-view="all-tasks" onclick="todoApp.switchView('all-tasks')">
+                <i class="fas fa-list"></i>
+                <span data-i18n="views.all_tasks">All Tasks</span>
+            </button>
+            <button class="view-tab" data-view="today" onclick="todoApp.switchView('today')">
+                <i class="fas fa-calendar-day"></i>
+                <span data-i18n="views.today">Today</span>
+            </button>
+            <button class="view-tab" data-view="archive" onclick="todoApp.switchView('archive')">
+                <i class="fas fa-archive"></i>
+                <span data-i18n="views.archive">Archive</span>
+            </button>
         </div>
 
         <div class="main-content">
@@ -792,6 +1271,57 @@
                     <p data-i18n="loading">Loading tasks...</p>
                 </div>
             </div>
+
+            <!-- Kanban Board for Today View -->
+            <div class="kanban-container" id="kanban-container" style="display: none;">
+                <!-- Suggested Tasks Section -->
+                <div class="suggested-tasks-section">
+                    <div class="suggested-tasks-header">
+                        <h3><i class="fas fa-lightbulb" style="color: var(--warning-color);"></i> <span data-i18n="suggested.title">Suggested Tasks</span></h3>
+                        <small style="color: var(--text-secondary);"><i class="fas fa-info-circle"></i> <span data-i18n="suggested.hint">Drag tasks to Kanban columns to add them to Today</span></small>
+                    </div>
+                    <div class="suggested-tasks-container" id="suggested-tasks-container">
+                        <!-- Suggested tasks will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Kanban Columns -->
+                <div class="kanban-column" data-status="todo">
+                    <div class="kanban-header">
+                        <h3><i class="fas fa-clipboard-list"></i> <span data-i18n="kanban.todo">To Do</span></h3>
+                        <span class="count" id="kanban-todo-count">0</span>
+                    </div>
+                    <div class="kanban-cards" id="kanban-todo">
+                        <!-- Kanban cards will be loaded here -->
+                    </div>
+                </div>
+                <div class="kanban-column" data-status="doing">
+                    <div class="kanban-header">
+                        <h3><i class="fas fa-spinner"></i> <span data-i18n="kanban.doing">Doing</span></h3>
+                        <span class="count" id="kanban-doing-count">0</span>
+                    </div>
+                    <div class="kanban-cards" id="kanban-doing">
+                        <!-- Kanban cards will be loaded here -->
+                    </div>
+                </div>
+                <div class="kanban-column" data-status="done">
+                    <div class="kanban-header">
+                        <h3><i class="fas fa-check-circle"></i> <span data-i18n="kanban.done">Done</span></h3>
+                        <span class="count" id="kanban-done-count">0</span>
+                    </div>
+                    <div class="kanban-cards" id="kanban-done">
+                        <!-- Kanban cards will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Archive View -->
+            <div class="archive-container" id="archive-container" style="display: none;">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p data-i18n="loading">Loading archived tasks...</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -827,6 +1357,34 @@
             en: {
                 title: "TaskMaster",
                 subtitle: "Manage your tasks efficiently and organized",
+                views: {
+                    all_tasks: "All Tasks",
+                    today: "Today",
+                    archive: "Archive"
+                },
+                kanban: {
+                    todo: "To Do",
+                    doing: "Doing",
+                    done: "Done"
+                },
+                today: {
+                    add: "Add to Today",
+                    remove: "Remove"
+                },
+                suggested: {
+                    title: "Suggested Tasks",
+                    hint: "Drag tasks to Kanban columns to add them to Today",
+                    empty: "No suggested tasks available"
+                },
+                shortcuts: {
+                    hint: "Press <strong>Ctrl+N</strong> to add task • <strong>Ctrl+R</strong> to refresh"
+                },
+                archive: {
+                    title: "Archived Tasks",
+                    empty: "No archived tasks",
+                    empty_message: "Completed tasks will appear here",
+                    unarchive: "Unarchive"
+                },
                 stats: {
                     total: "Total",
                     completed: "Completed",
@@ -900,80 +1458,108 @@
                     folder_deleted: "Folder and all its tasks deleted successfully"
                 }
             },
-            es: {
-                title: "TaskMaster",
-                subtitle: "Gestiona tus tareas de manera eficiente y organizada",
+            ar: {
+                title: "مدير المهام",
+                subtitle: "إدارة مهامك بكفاءة وتنظيم",
+                views: {
+                    all_tasks: "جميع المهام",
+                    today: "اليوم",
+                    archive: "الأرشيف"
+                },
+                kanban: {
+                    todo: "للإنجاز",
+                    doing: "قيد التنفيذ",
+                    done: "مكتمل"
+                },
+                today: {
+                    add: "إضافة لليوم",
+                    remove: "إزالة"
+                },
+                suggested: {
+                    title: "مهام مقترحة",
+                    hint: "اسحب المهام إلى أعمدة كانبان لإضافتها إلى اليوم",
+                    empty: "لا توجد مهام مقترحة"
+                },
+                shortcuts: {
+                    hint: "اضغط <strong>Ctrl+N</strong> لإضافة مهمة • <strong>Ctrl+R</strong> للتحديث"
+                },
+                archive: {
+                    title: "المهام المؤرشفة",
+                    empty: "لا توجد مهام مؤرشفة",
+                    empty_message: "المهام المكتملة ستظهر هنا",
+                    unarchive: "إلغاء الأرشفة"
+                },
                 stats: {
-                    total: "Total",
-                    completed: "Completadas",
-                    pending: "Pendientes",
-                    progress: "Progreso"
+                    total: "الإجمالي",
+                    completed: "مكتمل",
+                    pending: "قيد الانتظار",
+                    progress: "التقدم"
                 },
                 folders: {
-                    title: "Carpetas",
-                    add: "Agregar Carpeta",
-                    add_title: "Agregar Nueva Carpeta",
-                    name: "Nombre de la Carpeta",
-                    color: "Color"
+                    title: "المجلدات",
+                    add: "إضافة مجلد",
+                    add_title: "إضافة مجلد جديد",
+                    name: "اسم المجلد",
+                    color: "اللون"
                 },
                 filters: {
-                    status: "Estado:",
-                    category: "Categoría:",
-                    folder: "Carpeta:",
-                    search: "Buscar:",
-                    search_placeholder: "Buscar tareas...",
-                    all: "Todas",
-                    pending: "Pendientes",
-                    completed: "Completadas"
+                    status: "الحالة:",
+                    category: "الفئة:",
+                    folder: "المجلد:",
+                    search: "بحث:",
+                    search_placeholder: "البحث في المهام...",
+                    all: "الكل",
+                    pending: "قيد الانتظار",
+                    completed: "مكتمل"
                 },
                 categories: {
-                    work: "Trabajo",
-                    personal: "Personal",
-                    study: "Estudio",
-                    health: "Salud",
-                    general: "General"
+                    work: "العمل",
+                    personal: "شخصي",
+                    study: "دراسة",
+                    health: "صحة",
+                    general: "عام"
                 },
                 priority: {
-                    low: "Baja",
-                    medium: "Media",
-                    high: "Alta"
+                    low: "منخفض",
+                    medium: "متوسط",
+                    high: "مرتفع"
                 },
                 form: {
-                    title: "Título",
-                    title_placeholder: "¿Qué necesitas hacer?",
-                    description: "Descripción",
-                    description_placeholder: "Descripción opcional",
-                    priority: "Prioridad",
-                    category: "Categoría",
-                    folder: "Carpeta",
-                    add: "Agregar"
+                    title: "العنوان",
+                    title_placeholder: "ماذا تريد إنجازه؟",
+                    description: "الوصف",
+                    description_placeholder: "وصف اختياري",
+                    priority: "الأولوية",
+                    category: "الفئة",
+                    folder: "المجلد",
+                    add: "إضافة"
                 },
                 actions: {
-                    complete: "Completar",
-                    uncomplete: "Desmarcar",
-                    delete: "Eliminar",
-                    toggle: "Cambiar"
+                    complete: "إكمال",
+                    uncomplete: "إلغاء الإكمال",
+                    delete: "حذف",
+                    toggle: "تبديل"
                 },
                 common: {
-                    cancel: "Cancelar",
-                    save: "Guardar",
-                    loading: "Cargando tareas...",
-                    tasks: "tareas"
+                    cancel: "إلغاء",
+                    save: "حفظ",
+                    loading: "جاري تحميل المهام...",
+                    tasks: "مهام"
                 },
                 empty: {
-                    title: "No hay tareas",
-                    message: "¡Agrega tu primera tarea para comenzar!"
+                    title: "لا توجد مهام",
+                    message: "أضف مهمتك الأولى للبدء!"
                 },
                 errors: {
-                    no_folders: "Debes crear al menos una carpeta antes de agregar tareas",
-                    no_folders_title: "No hay carpetas disponibles",
-                    no_folders_message: "¡Crea tu primera carpeta para comenzar a agregar tareas!"
+                    no_folders: "يجب إنشاء مجلد واحد على الأقل قبل إضافة المهام",
+                    no_folders_title: "لا توجد مجلدات",
+                    no_folders_message: "أنشئ أول مجلد لك لبدء إضافة المهام!"
                 },
                 confirmations: {
-                    delete_folder: "¿Estás seguro de que quieres eliminar esta carpeta? Todas las tareas dentro de esta carpeta también se eliminarán."
+                    delete_folder: "هل أنت متأكد من حذف هذا المجلد؟ سيتم حذف جميع المهام داخل هذا المجلد أيضاً."
                 },
                 success: {
-                    folder_deleted: "Carpeta y todas sus tareas eliminadas exitosamente"
+                    folder_deleted: "تم حذف المجلد وجميع مهامه بنجاح"
                 }
             }
         };
@@ -983,21 +1569,573 @@
                 this.todos = [];
                 this.folders = [];
                 this.currentLanguage = 'en';
+                this.currentView = 'today';
+                this.lastCreatedFolderId = null;
                 this.filters = {
                     status: 'all',
                     category: 'all',
                     folder: 'all',
                     search: ''
                 };
+                this.quickAddMode = false;
                 this.init();
             }
 
             init() {
                 this.setupLanguageSwitcher();
                 this.bindEvents();
+                this.setupKeyboardShortcuts();
+                this.checkTelegramStatus();
                 this.loadFolders();
-                this.loadTodos();
                 this.loadStats();
+                // Start with Today view
+                this.switchView('today');
+            }
+
+            async checkTelegramStatus() {
+                try {
+                    const response = await fetch('/api/telegram/status');
+                    const status = await response.json();
+
+                    const icon = document.getElementById('telegram-status-icon');
+                    const text = document.getElementById('telegram-status-text');
+
+                    if (status.enabled && status.configured && status.library_installed) {
+                        icon.className = 'fas fa-robot telegram-enabled';
+                        text.textContent = 'Telegram bot connected';
+                    } else if (!status.enabled) {
+                        icon.className = 'fas fa-robot telegram-disabled';
+                        text.textContent = 'Telegram bot disabled (see telegram_config.json)';
+                    } else if (!status.configured) {
+                        icon.className = 'fas fa-robot telegram-pending';
+                        text.textContent = 'Configure bot token in telegram_config.json';
+                    } else if (!status.library_installed) {
+                        icon.className = 'fas fa-robot telegram-pending';
+                        text.textContent = 'Install: pip install pyTelegramBotAPI';
+                    }
+                } catch (error) {
+                    console.log('Could not check Telegram status');
+                }
+            }
+
+            async refreshCurrentView() {
+                // Show loading notification
+                this.showNotification('Refreshing...', 'info');
+
+                // Import Telegram tasks first
+                try {
+                    const response = await fetch('/api/telegram/import', {
+                        method: 'POST'
+                    });
+                    const result = await response.json();
+                    if (result.imported > 0) {
+                        this.showNotification(`Imported ${result.imported} tasks from Telegram!`, 'success');
+                    }
+                } catch (error) {
+                    console.log('Could not import Telegram tasks');
+                }
+
+                // Reload current view
+                if (this.currentView === 'today') {
+                    await this.loadTodayTodos();
+                } else if (this.currentView === 'archive') {
+                    await this.loadArchivedTodos();
+                } else {
+                    await this.loadTodos();
+                }
+
+                // Reload stats and folders
+                await this.loadStats();
+                await this.loadFolders();
+
+                this.showNotification('Refreshed!', 'success');
+            }
+
+            setupKeyboardShortcuts() {
+                // Ctrl+N to quick add task (works with any keyboard layout)
+                // Ctrl+R to refresh and import Telegram tasks
+                document.addEventListener('keydown', (e) => {
+                    // Use e.code for physical key detection (works with Arabic, etc.)
+                    if (e.ctrlKey && e.code === 'KeyN') {
+                        e.preventDefault();
+                        this.openQuickAdd();
+                    }
+                    // Ctrl+R to refresh (works with any keyboard layout)
+                    if (e.ctrlKey && e.code === 'KeyR') {
+                        e.preventDefault();
+                        this.refreshCurrentView();
+                    }
+                    // Escape to exit quick add mode
+                    if (e.key === 'Escape' && this.quickAddMode) {
+                        this.closeQuickAdd();
+                    }
+                });
+            }
+
+            openQuickAdd() {
+                this.quickAddMode = true;
+                const previousView = this.currentView;
+
+                // Show the add form
+                const todosContainer = document.getElementById('todos-container');
+                const kanbanContainer = document.getElementById('kanban-container');
+                const archiveContainer = document.getElementById('archive-container');
+                const controlsSection = document.querySelector('.controls');
+                const foldersSection = document.querySelector('.folders-section');
+
+                // Hide other views
+                kanbanContainer.style.display = 'none';
+                archiveContainer.style.display = 'none';
+
+                // Show All Tasks view with controls
+                todosContainer.style.display = 'block';
+                controlsSection.style.display = 'block';
+                foldersSection.style.display = 'block';
+
+                // Clear the form and focus on title
+                document.getElementById('add-todo-form').reset();
+                document.getElementById('todo-priority').value = 'medium';
+                document.getElementById('todo-category').value = 'general';
+
+                const titleInput = document.getElementById('todo-title');
+                titleInput.focus();
+
+                // Add enter key listener to submit
+                const submitHandler = (e) => {
+                    if (e.key === 'Enter' && titleInput.value.trim()) {
+                        e.preventDefault();
+                        this.addTodo();
+                        this.closeQuickAdd();
+                        // Return to previous view
+                        this.switchView(previousView);
+                    }
+                };
+
+                const escapeHandler = (e) => {
+                    if (e.key === 'Escape') {
+                        this.closeQuickAdd();
+                        this.switchView(previousView);
+                    }
+                };
+
+                titleInput.addEventListener('keydown', submitHandler);
+                titleInput.addEventListener('keydown', escapeHandler);
+
+                // Store handlers to remove them later
+                this.quickAddHandlers = { submitHandler, escapeHandler, titleInput };
+            }
+
+            closeQuickAdd() {
+                this.quickAddMode = false;
+                if (this.quickAddHandlers) {
+                    const { submitHandler, escapeHandler, titleInput } = this.quickAddHandlers;
+                    titleInput.removeEventListener('keydown', submitHandler);
+                    titleInput.removeEventListener('keydown', escapeHandler);
+                    this.quickAddHandlers = null;
+                }
+            }
+
+            switchView(view) {
+                this.currentView = view;
+
+                // Update tab styling
+                document.querySelectorAll('.view-tab').forEach(tab => {
+                    tab.classList.toggle('active', tab.dataset.view === view);
+                });
+
+                // Get containers
+                const todosContainer = document.getElementById('todos-container');
+                const kanbanContainer = document.getElementById('kanban-container');
+                const archiveContainer = document.getElementById('archive-container');
+                const controlsSection = document.querySelector('.controls');
+                const foldersSection = document.querySelector('.folders-section');
+
+                if (view === 'today') {
+                    // Show Kanban board
+                    todosContainer.style.display = 'none';
+                    kanbanContainer.style.display = 'grid';
+                    archiveContainer.style.display = 'none';
+                    controlsSection.style.display = 'none';
+                    foldersSection.style.display = 'none';
+                    this.loadTodayTodos();
+                } else if (view === 'archive') {
+                    // Show archive
+                    todosContainer.style.display = 'none';
+                    kanbanContainer.style.display = 'none';
+                    archiveContainer.style.display = 'block';
+                    controlsSection.style.display = 'none';
+                    foldersSection.style.display = 'none';
+                    this.loadArchivedTodos();
+                } else {
+                    // Show all tasks
+                    todosContainer.style.display = 'block';
+                    kanbanContainer.style.display = 'none';
+                    archiveContainer.style.display = 'none';
+                    controlsSection.style.display = 'block';
+                    foldersSection.style.display = 'block';
+                    this.loadTodos();
+                    // Auto-focus on title input for quick task entry
+                    setTimeout(() => {
+                        const titleInput = document.getElementById('todo-title');
+                        if (titleInput) {
+                            titleInput.focus();
+                        }
+                    }, 100);
+                }
+            }
+
+            async loadTodayTodos() {
+                try {
+                    // Load Today tasks for Kanban
+                    const response = await fetch('/api/todos/today');
+                    const todos = await response.json();
+                    this.renderKanban(todos);
+
+                    // Load suggested tasks (tasks NOT in Today)
+                    const suggestedResponse = await fetch('/api/todos?include_archived=false');
+                    let allTasks = await suggestedResponse.json();
+                    // Filter out tasks that are already in Today
+                    const suggestedTasks = allTasks.filter(t => !t.added_to_today && !t.completed && !t.archived);
+                    this.renderSuggestedTasks(suggestedTasks);
+                } catch (error) {
+                    this.showNotification('Error loading Today tasks', 'error');
+                }
+            }
+
+            renderSuggestedTasks(tasks) {
+                const container = document.getElementById('suggested-tasks-container');
+
+                if (tasks.length === 0) {
+                    container.innerHTML = `<div class="suggested-empty" data-i18n="suggested.empty">No suggested tasks available</div>`;
+                    this.updateDynamicTranslations();
+                    return;
+                }
+
+                container.innerHTML = tasks.map(todo => this.createSuggestedTaskCard(todo)).join('');
+                this.setupSuggestedTasksDragDrop();
+            }
+
+            createSuggestedTaskCard(todo) {
+                const priorityClass = `priority-${todo.priority}`;
+                const priorityText = {
+                    'high': translations[this.currentLanguage].priority.high,
+                    'medium': translations[this.currentLanguage].priority.medium,
+                    'low': translations[this.currentLanguage].priority.low
+                }[todo.priority];
+
+                return `
+                    <div class="suggested-task-card" draggable="true" data-todo-id="${todo.id}">
+                        <div class="suggested-task-title">${this.escapeHtml(todo.title)}</div>
+                        ${todo.description ? `<div class="suggested-task-description">${this.escapeHtml(todo.description)}</div>` : ''}
+                        <div class="suggested-task-meta">
+                            <span class="suggested-task-badge ${priorityClass}">${priorityText}</span>
+                            <span class="suggested-task-badge" style="background: ${todo.folder_color}; color: white;">${todo.folder_name}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            setupSuggestedTasksDragDrop() {
+                const cards = document.querySelectorAll('.suggested-task-card');
+
+                cards.forEach(card => {
+                    card.addEventListener('dragstart', (e) => {
+                        card.classList.add('dragging');
+                        e.dataTransfer.setData('text/plain', card.dataset.todoId);
+                        e.dataTransfer.setData('suggested-task', 'true');
+                    });
+
+                    card.addEventListener('dragend', () => {
+                        card.classList.remove('dragging');
+                    });
+                });
+            }
+
+            async loadArchivedTodos() {
+                try {
+                    const response = await fetch('/api/todos/archived');
+                    const todos = await response.json();
+                    this.renderArchived(todos);
+                } catch (error) {
+                    this.showNotification('Error loading archived tasks', 'error');
+                }
+            }
+
+            renderKanban(todos) {
+                const columns = {
+                    todo: document.getElementById('kanban-todo'),
+                    doing: document.getElementById('kanban-doing'),
+                    done: document.getElementById('kanban-done')
+                };
+
+                // Clear columns
+                Object.values(columns).forEach(col => col.innerHTML = '');
+
+                // Group todos by kanban_status
+                const todosByStatus = {
+                    todo: todos.filter(t => t.kanban_status === 'todo'),
+                    doing: todos.filter(t => t.kanban_status === 'doing'),
+                    done: todos.filter(t => t.kanban_status === 'done')
+                };
+
+                // Render cards
+                Object.keys(todosByStatus).forEach(status => {
+                    const statusTodos = todosByStatus[status];
+                    statusTodos.forEach(todo => {
+                        const card = this.createKanbanCard(todo);
+                        columns[status].appendChild(card);
+                    });
+                    // Update counts
+                    document.getElementById(`kanban-${status}-count`).textContent = statusTodos.length;
+                });
+
+                // Setup drag and drop
+                this.setupKanbanDragDrop();
+            }
+
+            createKanbanCard(todo) {
+                const card = document.createElement('div');
+                card.className = 'kanban-card';
+                card.draggable = true;
+                card.dataset.todoId = todo.id;
+
+                const priorityClass = `priority-${todo.priority}`;
+                const priorityText = {
+                    'high': translations[this.currentLanguage].priority.high,
+                    'medium': translations[this.currentLanguage].priority.medium,
+                    'low': translations[this.currentLanguage].priority.low
+                }[todo.priority];
+
+                card.innerHTML = `
+                    <div class="kanban-card-title">${this.escapeHtml(todo.title)}</div>
+                    ${todo.description ? `<div class="kanban-card-description">${this.escapeHtml(todo.description)}</div>` : ''}
+                    <div class="kanban-card-meta">
+                        <span class="kanban-card-badge ${priorityClass}">${priorityText}</span>
+                        <span class="kanban-card-badge" style="background: ${todo.folder_color}; color: white;">${todo.folder_name}</span>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation(); todoApp.removeFromToday(${todo.id})" style="font-size: 0.8rem; padding: 4px 10px;">
+                            <i class="fas fa-calendar-minus"></i> ${translations[this.currentLanguage].today.remove}
+                        </button>
+                    </div>
+                `;
+
+                return card;
+            }
+
+            setupKanbanDragDrop() {
+                const cards = document.querySelectorAll('.kanban-card');
+                const columnsInner = document.querySelectorAll('.kanban-cards');
+                const columns = document.querySelectorAll('.kanban-column');
+
+                cards.forEach(card => {
+                    card.addEventListener('dragstart', (e) => {
+                        card.classList.add('dragging');
+                        e.dataTransfer.setData('text/plain', card.dataset.todoId);
+                    });
+
+                    card.addEventListener('dragend', () => {
+                        card.classList.remove('dragging');
+                        document.querySelectorAll('.kanban-column').forEach(col => {
+                            col.classList.remove('drag-over');
+                        });
+                    });
+                });
+
+                // Add drop listeners to both the cards area and the entire column
+                columns.forEach(column => {
+                    column.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        column.classList.add('drag-over');
+                    });
+
+                    column.addEventListener('dragleave', (e) => {
+                        // Only remove drag-over if leaving the column entirely
+                        if (!column.contains(e.relatedTarget)) {
+                            column.classList.remove('drag-over');
+                        }
+                    });
+
+                    column.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        column.classList.remove('drag-over');
+
+                        const todoId = e.dataTransfer.getData('text/plain');
+                        const isSuggestedTask = e.dataTransfer.getData('suggested-task') === 'true';
+                        const newStatus = column.dataset.status;
+
+                        if (isSuggestedTask) {
+                            this.addSuggestedTaskToToday(todoId, newStatus);
+                        } else {
+                            this.updateKanbanStatus(todoId, newStatus);
+                        }
+                    });
+                });
+
+                // Also keep listeners on the cards area for better coverage
+                columnsInner.forEach(columnInner => {
+                    columnInner.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        columnInner.closest('.kanban-column').classList.add('drag-over');
+                    });
+
+                    columnInner.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation(); // Prevent bubbling to column
+                        columnInner.closest('.kanban-column').classList.remove('drag-over');
+
+                        const todoId = e.dataTransfer.getData('text/plain');
+                        const isSuggestedTask = e.dataTransfer.getData('suggested-task') === 'true';
+                        const newStatus = columnInner.closest('.kanban-column').dataset.status;
+
+                        if (isSuggestedTask) {
+                            this.addSuggestedTaskToToday(todoId, newStatus);
+                        } else {
+                            this.updateKanbanStatus(todoId, newStatus);
+                        }
+                    });
+                });
+            }
+
+            async addSuggestedTaskToToday(todoId, status) {
+                try {
+                    // First add to Today
+                    await fetch(`/api/todos/${todoId}/add-to-today`, {
+                        method: 'PUT'
+                    });
+
+                    // Then set Kanban status
+                    const response = await fetch(`/api/todos/${todoId}/kanban-status`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status })
+                    });
+
+                    if (response.ok) {
+                        this.loadTodayTodos();
+                        this.loadStats();
+                        this.showNotification('Task added to Today', 'success');
+                    }
+                } catch (error) {
+                    this.showNotification('Error adding task', 'error');
+                }
+            }
+
+            async updateKanbanStatus(todoId, status) {
+                try {
+                    const response = await fetch(`/api/todos/${todoId}/kanban-status`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status })
+                    });
+
+                    if (response.ok) {
+                        this.loadTodayTodos();
+                        this.loadStats();
+                        this.showNotification('Task status updated', 'success');
+                    }
+                } catch (error) {
+                    this.showNotification('Error updating status', 'error');
+                }
+            }
+
+            renderArchived(todos) {
+                const container = document.getElementById('archive-container');
+
+                if (todos.length === 0) {
+                    container.innerHTML = `
+                        <div class="archive-empty">
+                            <i class="fas fa-archive"></i>
+                            <h3 data-i18n="archive.empty">No archived tasks</h3>
+                            <p data-i18n="archive.empty_message">Completed tasks will appear here</p>
+                        </div>
+                    `;
+                    this.updateDynamicTranslations();
+                    return;
+                }
+
+                let html = '<div class="archive-header"><h2><i class="fas fa-archive"></i> <span data-i18n="archive.title">Archived Tasks</span></h2></div>';
+
+                todos.forEach(todo => {
+                    html += `
+                        <div class="archive-item">
+                            <div class="archive-item-header">
+                                <div class="archive-item-title">${this.escapeHtml(todo.title)}</div>
+                                <div class="archive-item-actions">
+                                    <button class="btn btn-sm btn-success" onclick="todoApp.unarchiveTodo(${todo.id})">
+                                        <i class="fas fa-undo"></i> <span data-i18n="archive.unarchive">Unarchive</span>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="todoApp.deleteTodo(${todo.id})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            ${todo.description ? `<div style="color: var(--text-secondary); margin: 8px 0;">${this.escapeHtml(todo.description)}</div>` : ''}
+                            <div class="archive-item-meta">
+                                <span><i class="fas fa-folder"></i> ${todo.folder_name}</span>
+                                <span><i class="fas fa-clock"></i> ${this.formatDate(todo.updated_at)}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+                this.updateDynamicTranslations();
+            }
+
+            async unarchiveTodo(todoId) {
+                try {
+                    const response = await fetch(`/api/todos/${todoId}/unarchive`, {
+                        method: 'PUT'
+                    });
+
+                    if (response.ok) {
+                        this.loadArchivedTodos();
+                        this.showNotification('Task unarchived successfully', 'success');
+                    }
+                } catch (error) {
+                    this.showNotification('Error unarchiving task', 'error');
+                }
+            }
+
+            async toggleAddToToday(todoId) {
+                const todo = this.todos.find(t => t.id === todoId);
+                const isAdding = !todo.added_to_today;
+
+                try {
+                    const endpoint = isAdding
+                        ? `/api/todos/${todoId}/add-to-today`
+                        : `/api/todos/${todoId}/remove-from-today`;
+
+                    const response = await fetch(endpoint, { method: 'PUT' });
+
+                    if (response.ok) {
+                        this.loadTodos();
+                        this.loadStats();
+                        this.showNotification(
+                            isAdding ? 'Added to Today' : 'Removed from Today',
+                            'success'
+                        );
+                    }
+                } catch (error) {
+                    this.showNotification('Error updating task', 'error');
+                }
+            }
+
+            async removeFromToday(todoId) {
+                try {
+                    const response = await fetch(`/api/todos/${todoId}/remove-from-today`, {
+                        method: 'PUT'
+                    });
+
+                    if (response.ok) {
+                        this.loadTodayTodos();
+                        this.loadStats();
+                        this.showNotification('Removed from Today', 'success');
+                    }
+                } catch (error) {
+                    this.showNotification('Error removing task', 'error');
+                }
             }
 
             setupLanguageSwitcher() {
@@ -1017,6 +2155,7 @@
             setLanguage(lang) {
                 this.currentLanguage = lang;
                 document.documentElement.lang = lang;
+                document.body.setAttribute('data-lang', lang);
                 
                 // Update all translatable elements
                 document.querySelectorAll('[data-i18n]').forEach(element => {
@@ -1085,6 +2224,14 @@
                 document.getElementById('add-todo-form').addEventListener('submit', (e) => {
                     e.preventDefault();
                     this.addTodo();
+                });
+
+                // Enter key on title input to quickly add task
+                document.getElementById('todo-title').addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && e.target.value.trim()) {
+                        e.preventDefault();
+                        this.addTodo();
+                    }
                 });
 
                 // Add folder form
@@ -1214,12 +2361,12 @@
                             <i class="fas fa-folder"></i>
                         </div>
                         <div class="folder-name" title="${this.escapeHtml(folder.name)}">${this.escapeHtml(folderNameDisplay)}</div>
-                        <div class="folder-progress-bar" style="background: #eee; border-radius: 6px; height: 10px; margin: 10px 0 6px 0; width: 100%; overflow: hidden;">
-                            <div style="width: ${percent}%; height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); border-radius: 6px;"></div>
+                        <div class="folder-progress-bar" style="background: var(--border-color); border-radius: var(--radius-sm); height: 6px; margin: 8px 0 6px 0; width: 100%; overflow: hidden;">
+                            <div style="width: ${percent}%; height: 100%; background: var(--accent-color); border-radius: var(--radius-sm);"></div>
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.95em;">
-                            <span title="${percent}% completed"><i class='fas fa-check-circle' style='color:#28a745;'></i> ${percent}%</span>
-                            <span title="${pending} pending"><i class='fas fa-tasks' style='color:#dc3545;'></i> ${pending}</span>
+                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85em;">
+                            <span title="${percent}% completed"><i class='fas fa-check-circle' style='color:var(--success-color);'></i> ${percent}%</span>
+                            <span title="${pending} pending"><i class='fas fa-tasks' style='color:var(--danger-color);'></i> ${pending}</span>
                         </div>
                         <div class="folder-count">${folder.todo_count} ${translations[this.currentLanguage].common.tasks}</div>
                         <div class="folder-actions">
@@ -1293,6 +2440,10 @@
                 // Update folder filter
                 document.getElementById('folder-filter').value = folderId;
                 this.filters.folder = folderId;
+
+                // Also update the folder select in the add-todo form
+                document.getElementById('todo-folder').value = folderId;
+
                 this.loadTodos();
 
                 // Update visual selection
@@ -1329,10 +2480,17 @@
                     });
 
                     if (response.ok) {
+                        const data = await response.json();
+                        this.lastCreatedFolderId = data.id; // Store the new folder ID
+
                         document.getElementById('folder-name').value = '';
                         document.getElementById('folder-color').value = '#667eea';
                         this.closeModal('add-folder-modal');
-                        this.loadFolders();
+                        await this.loadFolders();
+
+                        // Auto-select the newly created folder
+                        document.getElementById('todo-folder').value = this.lastCreatedFolderId;
+
                         this.showNotification('Folder created successfully', 'success');
                     } else {
                         throw new Error('Error creating folder');
@@ -1372,7 +2530,12 @@
                     if (this.filters.search) params.append('search', this.filters.search);
 
                     const response = await fetch(`/api/todos?${params}`);
-                    this.todos = await response.json();
+                    let todos = await response.json();
+
+                    // Filter out tasks that are in "Today" - they should only show in Today view
+                    todos = todos.filter(t => !t.added_to_today);
+
+                    this.todos = todos;
                     this.renderTodos();
                 } catch (error) {
                     this.showNotification('Error loading tasks', 'error');
@@ -1426,13 +2589,24 @@
                     });
 
                     if (response.ok) {
+                        // Preserve current folder selection instead of resetting to '1'
+                        const currentFolderId = document.getElementById('todo-folder').value;
+
                         document.getElementById('add-todo-form').reset();
                         document.getElementById('todo-priority').value = 'medium';
                         document.getElementById('todo-category').value = 'general';
-                        document.getElementById('todo-folder').value = '1';
-                        this.loadTodos();
-                        this.loadStats();
-                        this.loadFolders();
+
+                        // Load folders and stats
+                        await this.loadTodos();
+                        await this.loadStats();
+                        await this.loadFolders();
+
+                        // Restore folder selection AFTER loadFolders() rebuilds the dropdown
+                        document.getElementById('todo-folder').value = currentFolderId;
+
+                        // Keep focus on title input for quick task entry
+                        document.getElementById('todo-title').focus();
+
                         this.showNotification('Task added successfully', 'success');
                     } else {
                         throw new Error('Error adding task');
@@ -1443,20 +2617,44 @@
             }
 
             async toggleTodo(id) {
-                try {
-                    const response = await fetch(`/api/todos/${id}/toggle`, {
-                        method: 'PUT'
-                    });
+                // Find the task to check if it's currently completed
+                const todo = this.todos.find(t => t.id === id);
 
-                    if (response.ok) {
-                        this.loadTodos();
-                        this.loadStats();
-                        this.loadFolders();
-                    } else {
-                        throw new Error('Error updating task');
+                if (!todo || todo.completed) {
+                    // If already completed or task not found, use toggle (for unarchive scenario)
+                    try {
+                        const response = await fetch(`/api/todos/${id}/toggle`, {
+                            method: 'PUT'
+                        });
+
+                        if (response.ok) {
+                            this.loadTodos();
+                            this.loadStats();
+                            this.loadFolders();
+                        } else {
+                            throw new Error('Error updating task');
+                        }
+                    } catch (error) {
+                        this.showNotification('Error updating task', 'error');
                     }
-                } catch (error) {
-                    this.showNotification('Error updating task', 'error');
+                } else {
+                    // Task is not completed - mark as completed AND archive
+                    try {
+                        const response = await fetch(`/api/todos/${id}/archive`, {
+                            method: 'PUT'
+                        });
+
+                        if (response.ok) {
+                            this.loadTodos();
+                            this.loadStats();
+                            this.loadFolders();
+                            this.showNotification('Task completed and archived', 'success');
+                        } else {
+                            throw new Error('Error updating task');
+                        }
+                    } catch (error) {
+                        this.showNotification('Error updating task', 'error');
+                    }
                 }
             }
 
@@ -1550,7 +2748,13 @@
                                 </div>
                             </div>
                             <div class="todo-actions">
-                                <button class="btn btn-sm ${todo.completed ? 'btn-secondary' : 'btn-success'}" 
+                                <button class="btn btn-sm ${todo.added_to_today ? 'btn-warning' : 'btn-secondary'}"
+                                        onclick="todoApp.toggleAddToToday(${todo.id})"
+                                        title="${todo.added_to_today ? 'Remove from Today' : 'Add to Today'}">
+                                    <i class="fas ${todo.added_to_today ? 'fa-calendar-minus' : 'fa-calendar-plus'}"></i>
+                                    ${todo.added_to_today ? translations[this.currentLanguage].today.remove : translations[this.currentLanguage].today.add}
+                                </button>
+                                <button class="btn btn-sm ${todo.completed ? 'btn-secondary' : 'btn-success'}"
                                         onclick="todoApp.toggleTodo(${todo.id})">
                                     <i class="fas ${todo.completed ? 'fa-undo' : 'fa-check'}"></i>
                                     ${todo.completed ? translations[this.currentLanguage].actions.uncomplete : translations[this.currentLanguage].actions.complete}
@@ -1565,8 +2769,8 @@
                             <span class="priority-badge ${priorityClass}">${priorityText}</span>
                             <span class="category-badge">${categoryText}</span>
                             <span class="folder-badge" style="background-color: ${todo.folder_color}">${todo.folder_name}</span>
-                            <small style="color: #6c757d;">
-                                <i class="fas fa-clock"></i> 
+                            <small style="color: var(--text-secondary); font-size: 0.8rem;">
+                                <i class="fas fa-clock"></i>
                                 ${this.formatDate(todo.created_at)}
                             </small>
                         </div>
@@ -1582,7 +2786,12 @@
 
             formatDate(dateString) {
                 const date = new Date(dateString);
-                return date.toLocaleDateString(this.currentLanguage === 'es' ? 'es-ES' : 'en-US', {
+                const localeMap = {
+                    'en': 'en-US',
+                    'ar': 'ar-SA',
+                    'es': 'es-ES'
+                };
+                return date.toLocaleDateString(localeMap[this.currentLanguage] || 'en-US', {
                     year: 'numeric',
                     month: 'short',
                     day: 'numeric',

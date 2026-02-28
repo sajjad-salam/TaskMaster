@@ -1,0 +1,5 @@
+{
+  "bot_token": "token",
+  "enabled": false,
+  "instructions": "To enable Telegram bot:\n1. Create a bot with @BotFather on Telegram\n2. Copy your bot token\n3. Replace 'YOUR_BOT_TOKEN_HERE' with your token\n4. Set 'enabled' to true"
+}
