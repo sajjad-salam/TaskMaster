@@ -12,20 +12,22 @@
 ---
 
 ## ✨ Key Features
-- **Folder-based organisation** – Create, rename, delete and re-order folders any time.  
-- **Organize tasks** – Move tasks between folders from a floating, scrollable menu.  
-- **Real-time filter & search** – Filter by folder, status or free-text. Results update instantly.  
-- **Multi-language** – Switch between English and Spanish with one click.  
-- **Progress indicators** – Each folder shows a progress bar and a “tasks remaining” counter.  
-- **Responsive UI** – Clean, modern and mobile-friendly.  
-- **Truly portable** – All data lives next to the executable (`todos.db`).  
-- **Safe deletion** – Confirmation dialogs protect you from accidental data loss.  
-- **Smart limits & tooltips** – Long texts are gently truncated to keep the layout tidy.  
-- **Native window** – Runs in its own window via `pywebview`, not in a browser tab.  
+
+- **Folder-based organisation** – Create, rename, delete and re-order folders any time.
+- **Organize tasks** – Move tasks between folders from a floating, scrollable menu.
+- **Real-time filter & search** – Filter by folder, status or free-text. Results update instantly.
+- **Multi-language** – Switch between English and Spanish with one click.
+- **Progress indicators** – Each folder shows a progress bar and a “tasks remaining” counter.
+- **Responsive UI** – Clean, modern and mobile-friendly.
+- **Truly portable** – All data lives next to the executable (`todos.db`).
+- **Safe deletion** – Confirmation dialogs protect you from accidental data loss.
+- **Smart limits & tooltips** – Long texts are gently truncated to keep the layout tidy.
+- **Native window** – Runs in its own window via `pywebview`, not in a browser tab.
 
 ---
 
 ## 📸 Sneak Peek
+
 <!-- Replace with an actual screenshot or GIF -->
 <div style="display:flex; gap:10px;">
   <img src="docs/Screenshot1.png" alt="TaskMaster screenshot" width="1220" height="1220">
@@ -50,6 +52,7 @@
 ---
 
 ## 🗂️ Project Structure
+
 ```text
 TMApp/
 ├── app.py            # Flask backend + pywebview launcher
@@ -65,6 +68,7 @@ TMApp/
 ---
 
 ## 🔧 Tech Stack
+
 - `Flask` - Backend web framework
 - `pywebview` - Native window for web apps
 - [HTML/CSS/JS] - Frontend (in `templates/index.html`)
@@ -76,16 +80,23 @@ TMApp/
 - Windows 10/11
 - No internet connection required
 
+## to export
+
+```
+pyinstaller TaskMaster.spec --noconfirm
+```
+
 ---
 
 ## 🗑️ Uninstall
 
 - Delete the folder that contains `TaskMaster.exe` and `todos.db`. Nothing is left
-behind in the registry or elsewhere.
+  behind in the registry or elsewhere.
 
 ---
 
 ## License
+
 TaskMaster is released under the MIT License – see LICENSE for details.
 
 ---

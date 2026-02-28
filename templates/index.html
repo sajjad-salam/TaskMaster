@@ -187,6 +187,21 @@
             color: var(--text-primary);
         }
 
+        .today-badge {
+            background: #ef4444;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .today-badge:empty {
+            display: none;
+        }
+
         .main-content {
             background: var(--bg-secondary);
             border-radius: var(--radius-lg);
@@ -249,7 +264,7 @@
             font-size: 0.85rem;
         }
 
-        select, input[type="text"] {
+        select, input[type="text"], textarea {
             padding: 8px 12px;
             border: 1px solid var(--border-color);
             border-radius: var(--radius-sm);
@@ -261,11 +276,20 @@
             color: var(--text-primary);
         }
 
-        select:hover, input[type="text"]:hover {
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+            font-family: inherit;
+            line-height: 1.4;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        select:hover, input[type="text"]:hover, textarea:hover {
             border-color: var(--text-tertiary);
         }
 
-        select:focus, input[type="text"]:focus {
+        select:focus, input[type="text"]:focus, textarea:focus {
             outline: none;
             border-color: var(--accent-color);
         }
@@ -823,6 +847,309 @@
             overflow: visible !important;
         }
 
+        /* ============ MULTI-SELECT STYLES ============ */
+
+        /* Selection mode overlay */
+        .selection-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            z-index: 1000;
+            display: none;
+            user-select: none;
+        }
+
+        .selection-overlay.active {
+            display: block;
+        }
+
+        /* Selection box */
+        .selection-box {
+            position: fixed;
+            border: 2px solid var(--accent-color);
+            background: rgba(0, 113, 227, 0.1);
+            pointer-events: none;
+            z-index: 1001;
+            display: none;
+            border-radius: 4px;
+        }
+
+        .selection-box.active {
+            display: block;
+        }
+
+        /* Checkbox for task selection */
+        .todo-checkbox {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+
+        .todo-item:hover .todo-checkbox,
+        .todo-item.selected .todo-checkbox,
+        .selection-mode .todo-checkbox {
+            opacity: 1;
+        }
+
+        /* Custom checkbox appearance */
+        .todo-checkbox-wrapper {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--bg-secondary);
+            cursor: pointer;
+            z-index: 9;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .todo-checkbox-wrapper:hover {
+            border-color: var(--accent-color);
+        }
+
+        .todo-checkbox-wrapper.checked {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .todo-checkbox-wrapper.checked::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: white;
+            font-size: 12px;
+        }
+
+        /* Selected task styling */
+        .todo-item.selected {
+            border-color: var(--accent-color);
+            background: rgba(0, 113, 227, 0.05);
+        }
+
+        .todo-item.selected .todo-checkbox-wrapper {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .todo-item.selected .todo-checkbox-wrapper::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: white;
+            font-size: 12px;
+        }
+
+        /* Adjust todo item padding for checkbox */
+        .todo-item {
+            padding-left: 48px;
+        }
+
+        /* Bulk action toolbar */
+        .bulk-action-toolbar {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            z-index: 1002;
+            transition: transform 0.3s ease;
+        }
+
+        .bulk-action-toolbar.visible {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .bulk-action-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .bulk-action-count {
+            background: var(--accent-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .bulk-action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .bulk-action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+        }
+
+        .bulk-action-btn.move {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .bulk-action-btn.move:hover {
+            background: var(--bg-primary);
+            border-color: var(--accent-color);
+        }
+
+        .bulk-action-btn.delete {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .bulk-action-btn.delete:hover {
+            opacity: 0.9;
+        }
+
+        .bulk-action-btn.clear {
+            background: transparent;
+            color: var(--text-secondary);
+            border: none;
+            padding: 8px;
+        }
+
+        .bulk-action-btn.clear:hover {
+            color: var(--text-primary);
+        }
+
+        /* Bulk move dropdown */
+        .bulk-move-dropdown {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            margin-bottom: 8px;
+            min-width: 200px;
+            background: var(--bg-secondary);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            z-index: 1003;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 4px;
+            display: none;
+        }
+
+        .bulk-move-dropdown.visible {
+            display: block;
+        }
+
+        .bulk-move-dropdown .folder-option {
+            padding: 10px 12px;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: background 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bulk-move-dropdown .folder-option:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .bulk-move-dropdown .folder-option .folder-color-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        /* Selection mode for Kanban */
+        .kanban-card .todo-checkbox-wrapper {
+            top: 8px;
+            left: 8px;
+        }
+
+        .kanban-card .todo-checkbox {
+            top: 8px;
+            left: 8px;
+        }
+
+        .kanban-card {
+            padding-left: 36px;
+        }
+
+        .kanban-card.selected {
+            border-color: var(--accent-color);
+            background: rgba(0, 113, 227, 0.05);
+        }
+
+        /* Suggested task selection */
+        .suggested-task-card .todo-checkbox-wrapper {
+            top: 8px;
+            left: 8px;
+        }
+
+        .suggested-task-card .todo-checkbox {
+            top: 8px;
+            left: 8px;
+        }
+
+        .suggested-task-card {
+            padding-left: 36px;
+        }
+
+        .suggested-task-card.selected {
+            border-color: var(--accent-color);
+            background: rgba(0, 113, 227, 0.05);
+        }
+
+        /* Select all checkbox */
+        .select-all-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .select-all-container .todo-checkbox-wrapper {
+            position: static;
+        }
+
+        .select-all-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
         /* Menú flotante global para mover tarea */
         .move-folder-global-dropdown {
             position: absolute;
@@ -1125,6 +1452,131 @@
             font-size: 0.85rem;
             color: var(--text-secondary);
         }
+
+        /* Notes Styles */
+        .notes-container {
+            padding: 24px;
+        }
+
+        .notes-header {
+            margin-bottom: 20px;
+        }
+
+        .notes-header h2 {
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .add-note-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .note-input {
+            width: 100%;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            resize: vertical;
+            min-height: 80px;
+            margin-bottom: 12px;
+        }
+
+        .note-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .notes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .note-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            position: relative;
+        }
+
+        .note-content {
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin-bottom: 12px;
+        }
+
+        .note-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .note-date {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .note-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .note-btn {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }
+
+        .note-btn-copy {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .note-btn-copy:hover {
+            opacity: 0.9;
+        }
+
+        .note-btn-delete {
+            background: #ef4444;
+            color: white;
+        }
+
+        .note-btn-delete:hover {
+            background: #dc2626;
+        }
+
+        .notes-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .notes-empty i {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.4;
+        }
     </style>
 </head>
 <body>
@@ -1152,10 +1604,15 @@
             <button class="view-tab" data-view="today" onclick="todoApp.switchView('today')">
                 <i class="fas fa-calendar-day"></i>
                 <span data-i18n="views.today">Today</span>
+                <span class="today-badge" id="today-badge">0</span>
             </button>
             <button class="view-tab" data-view="archive" onclick="todoApp.switchView('archive')">
                 <i class="fas fa-archive"></i>
                 <span data-i18n="views.archive">Archive</span>
+            </button>
+            <button class="view-tab" data-view="notes" onclick="todoApp.switchView('notes')">
+                <i class="fas fa-sticky-note"></i>
+                <span data-i18n="views.notes">Notes</span>
             </button>
         </div>
 
@@ -1228,11 +1685,11 @@
                 <form class="add-todo-form" id="add-todo-form">
                     <div class="form-group">
                         <label data-i18n="form.title">Title</label>
-                        <input type="text" id="todo-title" data-i18n-placeholder="form.title_placeholder" required maxlength="60">
+                        <textarea id="todo-title" rows="1" data-i18n-placeholder="form.title_placeholder" required maxlength="500" style="resize: none; overflow: hidden; min-height: 38px;"></textarea>
                     </div>
                     <div class="form-group">
                         <label data-i18n="form.description">Description</label>
-                        <input type="text" id="todo-description" data-i18n-placeholder="form.description_placeholder" maxlength="80">
+                        <textarea id="todo-description" rows="3" data-i18n-placeholder="form.description_placeholder" maxlength="5000"></textarea>
                     </div>
                     <div class="form-group">
                         <label data-i18n="form.priority">Priority</label>
@@ -1322,6 +1779,29 @@
                     <p data-i18n="loading">Loading archived tasks...</p>
                 </div>
             </div>
+
+            <!-- Notes View -->
+            <div class="notes-container" id="notes-container" style="display: none;">
+                <div class="notes-header">
+                    <h2 data-i18n="notes.title">My Notes</h2>
+                </div>
+
+                <!-- Add Note Form -->
+                <div class="add-note-section">
+                    <textarea id="note-content" class="note-input" rows="4" data-i18n-placeholder="notes.placeholder" maxlength="10000"></textarea>
+                    <button class="btn btn-primary" onclick="todoApp.addNote()">
+                        <i class="fas fa-plus"></i> <span data-i18n="notes.add">Add Note</span>
+                    </button>
+                </div>
+
+                <!-- Notes List -->
+                <div class="notes-list" id="notes-list">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p data-i18n="loading">Loading notes...</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1351,6 +1831,33 @@
 
     <div id="notification-container"></div>
 
+    <!-- Multi-Select Elements -->
+    <div class="selection-overlay" id="selection-overlay"></div>
+    <div class="selection-box" id="selection-box"></div>
+
+    <!-- Bulk Action Toolbar -->
+    <div class="bulk-action-toolbar" id="bulk-action-toolbar">
+        <div class="bulk-action-info">
+            <span class="bulk-action-count" id="selected-count">0</span>
+            <span id="selected-text">tasks selected</span>
+        </div>
+        <div class="bulk-action-buttons">
+            <button class="bulk-action-btn move" id="bulk-move-btn">
+                <i class="fas fa-folder"></i> Move
+            </button>
+            <button class="bulk-action-btn delete" id="bulk-delete-btn">
+                <i class="fas fa-trash"></i> Delete
+            </button>
+            <button class="bulk-action-btn clear" id="bulk-clear-btn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <!-- Bulk Move Dropdown -->
+        <div class="bulk-move-dropdown" id="bulk-move-dropdown">
+            <!-- Folders will be populated here -->
+        </div>
+    </div>
+
     <script>
         // Language translations
         const translations = {
@@ -1360,7 +1867,18 @@
                 views: {
                     all_tasks: "All Tasks",
                     today: "Today",
-                    archive: "Archive"
+                    archive: "Archive",
+                    notes: "Notes"
+                },
+                notes: {
+                    title: "My Notes",
+                    add: "Add Note",
+                    placeholder: "Write your note here...",
+                    empty: "No notes yet",
+                    empty_message: "Create your first note above",
+                    copy: "Copy",
+                    copied: "Copied!",
+                    delete: "Delete"
                 },
                 kanban: {
                     todo: "To Do",
@@ -1464,7 +1982,18 @@
                 views: {
                     all_tasks: "جميع المهام",
                     today: "اليوم",
-                    archive: "الأرشيف"
+                    archive: "الأرشيف",
+                    notes: "الملاحظات"
+                },
+                notes: {
+                    title: "ملاحظاتي",
+                    add: "إضافة ملاحظة",
+                    placeholder: "اكتب ملاحظتك هنا...",
+                    empty: "لا توجد ملاحظات",
+                    empty_message: "أنشئ أول ملاحظة أعلاه",
+                    copy: "نسخ",
+                    copied: "تم النسخ!",
+                    delete: "حذف"
                 },
                 kanban: {
                     todo: "للإنجاز",
@@ -1578,6 +2107,10 @@
                     search: ''
                 };
                 this.quickAddMode = false;
+                // Multi-select properties
+                this.selectedTasks = new Set();
+                this.isSelecting = false;
+                this.selectionStart = { x: 0, y: 0 };
                 this.init();
             }
 
@@ -1585,11 +2118,24 @@
                 this.setupLanguageSwitcher();
                 this.bindEvents();
                 this.setupKeyboardShortcuts();
+                this.setupAutoResizeTextarea();
+                this.setupMultiSelect();
                 this.checkTelegramStatus();
                 this.loadFolders();
                 this.loadStats();
                 // Start with Today view
                 this.switchView('today');
+            }
+
+            setupAutoResizeTextarea() {
+                const titleTextarea = document.getElementById('todo-title');
+
+                const autoResize = () => {
+                    titleTextarea.style.height = 'auto';
+                    titleTextarea.style.height = Math.min(titleTextarea.scrollHeight, 120) + 'px';
+                };
+
+                titleTextarea.addEventListener('input', autoResize);
             }
 
             async checkTelegramStatus() {
@@ -1665,12 +2211,315 @@
                         e.preventDefault();
                         this.refreshCurrentView();
                     }
-                    // Escape to exit quick add mode
-                    if (e.key === 'Escape' && this.quickAddMode) {
-                        this.closeQuickAdd();
+                    // Escape to exit quick add mode or clear selection
+                    if (e.key === 'Escape') {
+                        if (this.quickAddMode) {
+                            this.closeQuickAdd();
+                        }
+                        if (this.selectedTasks.size > 0) {
+                            this.clearSelection();
+                        }
                     }
                 });
             }
+
+            // ============ MULTI-SELECT FUNCTIONS ============
+
+            setupMultiSelect() {
+                const selectionOverlay = document.getElementById('selection-overlay');
+                const selectionBox = document.getElementById('selection-box');
+                const bulkMoveBtn = document.getElementById('bulk-move-btn');
+                const bulkDeleteBtn = document.getElementById('bulk-delete-btn');
+                const bulkClearBtn = document.getElementById('bulk-clear-btn');
+                const bulkMoveDropdown = document.getElementById('bulk-move-dropdown');
+
+                let isDragging = false;
+                let dragStart = { x: 0, y: 0 };
+
+                // Mouse down on overlay - start box selection
+                selectionOverlay.addEventListener('mousedown', (e) => {
+                    if (e.button === 0) { // Left click only
+                        isDragging = true;
+                        dragStart = { x: e.clientX, y: e.clientY };
+                        selectionBox.style.left = e.clientX + 'px';
+                        selectionBox.style.top = e.clientY + 'px';
+                        selectionBox.style.width = '0px';
+                        selectionBox.style.height = '0px';
+                        selectionBox.classList.add('active');
+                    }
+                });
+
+                // Mouse move - update selection box
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+
+                    const currentX = e.clientX;
+                    const currentY = e.clientY;
+
+                    const left = Math.min(dragStart.x, currentX);
+                    const top = Math.min(dragStart.y, currentY);
+                    const width = Math.abs(currentX - dragStart.x);
+                    const height = Math.abs(currentY - dragStart.y);
+
+                    selectionBox.style.left = left + 'px';
+                    selectionBox.style.top = top + 'px';
+                    selectionBox.style.width = width + 'px';
+                    selectionBox.style.height = height + 'px';
+
+                    // Check which tasks are under the selection box
+                    this.checkTaskSelection(left, top, width, height);
+                });
+
+                // Mouse up - end box selection
+                document.addEventListener('mouseup', () => {
+                    if (isDragging) {
+                        isDragging = false;
+                        selectionBox.classList.remove('active');
+                        selectionBox.style.width = '0px';
+                        selectionBox.style.height = '0px';
+                    }
+                });
+
+                // Bulk move button
+                bulkMoveBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.showBulkMoveDropdown();
+                });
+
+                // Bulk delete button
+                bulkDeleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.bulkDeleteSelected();
+                });
+
+                // Clear selection button
+                bulkClearBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.clearSelection();
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.bulk-action-toolbar')) {
+                        bulkMoveDropdown.classList.remove('visible');
+                    }
+                });
+
+                // Enable selection mode when Ctrl key is held on task containers
+                document.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey || e.metaKey) {
+                        selectionOverlay.classList.add('active');
+                    }
+                });
+
+                document.addEventListener('keyup', (e) => {
+                    if (!e.ctrlKey && !e.metaKey) {
+                        selectionOverlay.classList.remove('active');
+                    }
+                });
+            }
+
+            checkTaskSelection(left, top, width, height) {
+                const selectableItems = document.querySelectorAll('.todo-item, .kanban-card, .suggested-task-card');
+
+                selectableItems.forEach(item => {
+                    const rect = item.getBoundingClientRect();
+                    const itemCenterX = rect.left + rect.width / 2;
+                    const itemCenterY = rect.top + rect.height / 2;
+
+                    const isInside = (
+                        itemCenterX >= left &&
+                        itemCenterX <= left + width &&
+                        itemCenterY >= top &&
+                        itemCenterY <= top + height
+                    );
+
+                    const todoId = item.dataset.todoId;
+                    if (todoId) {
+                        if (isInside && !this.selectedTasks.has(todoId)) {
+                            this.selectTask(todoId, item);
+                        } else if (!isInside && this.selectedTasks.has(todoId) && !item.classList.contains('manually-selected')) {
+                            this.deselectTask(todoId, item);
+                        }
+                    }
+                });
+            }
+
+            toggleTaskSelection(todoId) {
+                const item = document.querySelector(`[data-todo-id="${todoId}"]`);
+                if (!item) return;
+
+                if (this.selectedTasks.has(todoId)) {
+                    this.deselectTask(todoId, item);
+                } else {
+                    this.selectTask(todoId, item, true);
+                }
+            }
+
+            selectTask(todoId, item = null, isManual = false) {
+                this.selectedTasks.add(todoId);
+                if (!item) {
+                    item = document.querySelector(`[data-todo-id="${todoId}"]`);
+                }
+                if (item) {
+                    item.classList.add('selected');
+                    if (isManual) {
+                        item.classList.add('manually-selected');
+                    }
+                }
+                this.updateBulkToolbar();
+            }
+
+            deselectTask(todoId, item = null) {
+                this.selectedTasks.delete(todoId);
+                if (!item) {
+                    item = document.querySelector(`[data-todo-id="${todoId}"]`);
+                }
+                if (item) {
+                    item.classList.remove('selected', 'manually-selected');
+                    // Uncheck the checkbox
+                    const checkbox = item.querySelector('.todo-checkbox');
+                    if (checkbox) {
+                        checkbox.checked = false;
+                    }
+                }
+                this.updateBulkToolbar();
+            }
+
+            clearSelection() {
+                this.selectedTasks.forEach(todoId => {
+                    const item = document.querySelector(`[data-todo-id="${todoId}"]`);
+                    if (item) {
+                        item.classList.remove('selected', 'manually-selected');
+                        const checkbox = item.querySelector('.todo-checkbox');
+                        if (checkbox) {
+                            checkbox.checked = false;
+                        }
+                    }
+                });
+                this.selectedTasks.clear();
+                this.updateBulkToolbar();
+            }
+
+            updateBulkToolbar() {
+                const toolbar = document.getElementById('bulk-action-toolbar');
+                const count = document.getElementById('selected-count');
+                const text = document.getElementById('selected-text');
+
+                count.textContent = this.selectedTasks.size;
+
+                if (this.selectedTasks.size > 0) {
+                    toolbar.classList.add('visible');
+                    text.textContent = this.selectedTasks.size === 1 ? 'task selected' : 'tasks selected';
+                } else {
+                    toolbar.classList.remove('visible');
+                }
+            }
+
+            showBulkMoveDropdown() {
+                const dropdown = document.getElementById('bulk-move-dropdown');
+                dropdown.innerHTML = '';
+
+                if (this.folders.length === 0) {
+                    dropdown.innerHTML = '<div style="padding: 12px; color: var(--text-secondary);">No folders available</div>';
+                } else {
+                    this.folders.forEach(folder => {
+                        const option = document.createElement('div');
+                        option.className = 'folder-option';
+                        option.innerHTML = `
+                            <span class="folder-color-dot" style="background: ${folder.color}"></span>
+                            <span>${this.escapeHtml(folder.name)}</span>
+                        `;
+                        option.addEventListener('click', () => {
+                            this.bulkMoveSelected(folder.id);
+                        });
+                        dropdown.appendChild(option);
+                    });
+                }
+
+                dropdown.classList.add('visible');
+            }
+
+            async bulkDeleteSelected() {
+                if (this.selectedTasks.size === 0) return;
+
+                const count = this.selectedTasks.size;
+                const confirmMsg = count === 1
+                    ? 'Are you sure you want to delete this task?'
+                    : `Are you sure you want to delete ${count} tasks?`;
+
+                if (!confirm(confirmMsg)) return;
+
+                try {
+                    // Use batch delete endpoint
+                    const response = await fetch('/api/todos/batch', {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ids: Array.from(this.selectedTasks) })
+                    });
+
+                    if (response.ok) {
+                        this.clearSelection();
+                        this.showNotification(`${count} task(s) deleted successfully`, 'success');
+
+                        // Reload current view
+                        if (this.currentView === 'today') {
+                            this.loadTodayTodos();
+                        } else if (this.currentView === 'archive') {
+                            this.loadArchivedTodos();
+                        } else {
+                            this.loadTodos();
+                        }
+
+                        this.loadStats();
+                        this.loadFolders();
+                    } else {
+                        throw new Error('Error deleting tasks');
+                    }
+                } catch (error) {
+                    this.showNotification('Error deleting tasks', 'error');
+                }
+            }
+
+            async bulkMoveSelected(folderId) {
+                if (this.selectedTasks.size === 0) return;
+
+                try {
+                    // Use batch move endpoint
+                    const response = await fetch('/api/todos/batch/move', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            ids: Array.from(this.selectedTasks),
+                            folder_id: parseInt(folderId)
+                        })
+                    });
+
+                    if (response.ok) {
+                        this.clearSelection();
+                        document.getElementById('bulk-move-dropdown').classList.remove('visible');
+                        this.showNotification(`${this.selectedTasks.size} task(s) moved successfully`, 'success');
+
+                        // Reload current view
+                        if (this.currentView === 'today') {
+                            this.loadTodayTodos();
+                        } else if (this.currentView === 'archive') {
+                            this.loadArchivedTodos();
+                        } else {
+                            this.loadTodos();
+                        }
+
+                        this.loadFolders();
+                        this.loadStats();
+                    } else {
+                        throw new Error('Error moving tasks');
+                    }
+                } catch (error) {
+                    this.showNotification('Error moving tasks', 'error');
+                }
+            }
+
+            // ============ END MULTI-SELECT FUNCTIONS ============
 
             openQuickAdd() {
                 this.quickAddMode = true;
@@ -1747,6 +2596,7 @@
                 const todosContainer = document.getElementById('todos-container');
                 const kanbanContainer = document.getElementById('kanban-container');
                 const archiveContainer = document.getElementById('archive-container');
+                const notesContainer = document.getElementById('notes-container');
                 const controlsSection = document.querySelector('.controls');
                 const foldersSection = document.querySelector('.folders-section');
 
@@ -1755,6 +2605,7 @@
                     todosContainer.style.display = 'none';
                     kanbanContainer.style.display = 'grid';
                     archiveContainer.style.display = 'none';
+                    notesContainer.style.display = 'none';
                     controlsSection.style.display = 'none';
                     foldersSection.style.display = 'none';
                     this.loadTodayTodos();
@@ -1763,14 +2614,25 @@
                     todosContainer.style.display = 'none';
                     kanbanContainer.style.display = 'none';
                     archiveContainer.style.display = 'block';
+                    notesContainer.style.display = 'none';
                     controlsSection.style.display = 'none';
                     foldersSection.style.display = 'none';
                     this.loadArchivedTodos();
+                } else if (view === 'notes') {
+                    // Show notes
+                    todosContainer.style.display = 'none';
+                    kanbanContainer.style.display = 'none';
+                    archiveContainer.style.display = 'none';
+                    notesContainer.style.display = 'block';
+                    controlsSection.style.display = 'none';
+                    foldersSection.style.display = 'none';
+                    this.loadNotes();
                 } else {
                     // Show all tasks
                     todosContainer.style.display = 'block';
                     kanbanContainer.style.display = 'none';
                     archiveContainer.style.display = 'none';
+                    notesContainer.style.display = 'none';
                     controlsSection.style.display = 'block';
                     foldersSection.style.display = 'block';
                     this.loadTodos();
@@ -1790,6 +2652,7 @@
                     const response = await fetch('/api/todos/today');
                     const todos = await response.json();
                     this.renderKanban(todos);
+                    this.updateTodayBadge(todos.length);
 
                     // Load suggested tasks (tasks NOT in Today)
                     const suggestedResponse = await fetch('/api/todos?include_archived=false');
@@ -1799,6 +2662,19 @@
                     this.renderSuggestedTasks(suggestedTasks);
                 } catch (error) {
                     this.showNotification('Error loading Today tasks', 'error');
+                }
+            }
+
+            updateTodayBadge(count) {
+                const badge = document.getElementById('today-badge');
+                if (badge) {
+                    badge.textContent = count;
+                    // Hide badge if count is 0
+                    if (count === 0) {
+                        badge.style.display = 'none';
+                    } else {
+                        badge.style.display = 'inline-block';
+                    }
                 }
             }
 
@@ -1823,8 +2699,12 @@
                     'low': translations[this.currentLanguage].priority.low
                 }[todo.priority];
 
+                const isSelected = this.selectedTasks.has(String(todo.id));
+
                 return `
-                    <div class="suggested-task-card" draggable="true" data-todo-id="${todo.id}">
+                    <div class="suggested-task-card ${isSelected ? 'selected' : ''}" draggable="true" data-todo-id="${todo.id}">
+                        <div class="todo-checkbox-wrapper ${isSelected ? 'checked' : ''}" onclick="event.stopPropagation(); todoApp.toggleTaskSelection(${todo.id})"></div>
+                        <input type="checkbox" class="todo-checkbox" ${isSelected ? 'checked' : ''} onchange="event.stopPropagation(); todoApp.toggleTaskSelection(${todo.id})">
                         <div class="suggested-task-title">${this.escapeHtml(todo.title)}</div>
                         ${todo.description ? `<div class="suggested-task-description">${this.escapeHtml(todo.description)}</div>` : ''}
                         <div class="suggested-task-meta">
@@ -1899,6 +2779,12 @@
                 card.draggable = true;
                 card.dataset.todoId = todo.id;
 
+                const isSelected = this.selectedTasks.has(String(todo.id));
+
+                if (isSelected) {
+                    card.classList.add('selected');
+                }
+
                 const priorityClass = `priority-${todo.priority}`;
                 const priorityText = {
                     'high': translations[this.currentLanguage].priority.high,
@@ -1907,6 +2793,8 @@
                 }[todo.priority];
 
                 card.innerHTML = `
+                    <div class="todo-checkbox-wrapper ${isSelected ? 'checked' : ''}" onclick="event.stopPropagation(); todoApp.toggleTaskSelection(${todo.id})"></div>
+                    <input type="checkbox" class="todo-checkbox" ${isSelected ? 'checked' : ''} onchange="event.stopPropagation(); todoApp.toggleTaskSelection(${todo.id})">
                     <div class="kanban-card-title">${this.escapeHtml(todo.title)}</div>
                     ${todo.description ? `<div class="kanban-card-description">${this.escapeHtml(todo.description)}</div>` : ''}
                     <div class="kanban-card-meta">
@@ -2220,18 +3108,10 @@
             }
 
             bindEvents() {
-                // Form submission
+                // Form submission (handles both button click and Enter key)
                 document.getElementById('add-todo-form').addEventListener('submit', (e) => {
                     e.preventDefault();
                     this.addTodo();
-                });
-
-                // Enter key on title input to quickly add task
-                document.getElementById('todo-title').addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' && e.target.value.trim()) {
-                        e.preventDefault();
-                        this.addTodo();
-                    }
                 });
 
                 // Add folder form
@@ -2596,6 +3476,9 @@
                         document.getElementById('todo-priority').value = 'medium';
                         document.getElementById('todo-category').value = 'general';
 
+                        // Reset title textarea height
+                        document.getElementById('todo-title').style.height = 'auto';
+
                         // Load folders and stats
                         await this.loadTodos();
                         await this.loadStats();
@@ -2659,8 +3542,6 @@
             }
 
             async deleteTodo(id) {
-                if (!confirm('Are you sure you want to delete this task?')) return;
-
                 try {
                     const response = await fetch(`/api/todos/${id}`, {
                         method: 'DELETE'
@@ -2677,6 +3558,159 @@
                 } catch (error) {
                     this.showNotification('Error deleting task', 'error');
                 }
+            }
+
+            // ============= NOTES FUNCTIONS =============
+
+            async loadNotes() {
+                try {
+                    const response = await fetch('/api/notes');
+                    const notes = await response.json();
+                    this.renderNotes(notes);
+                } catch (error) {
+                    this.showNotification('Error loading notes', 'error');
+                }
+            }
+
+            renderNotes(notes) {
+                const container = document.getElementById('notes-list');
+
+                if (notes.length === 0) {
+                    container.innerHTML = `
+                        <div class="notes-empty">
+                            <i class="fas fa-sticky-note"></i>
+                            <p data-i18n="notes.empty">No notes yet</p>
+                            <p data-i18n="notes.empty_message" style="font-size: 0.9rem; margin-top: 8px;">Create your first note above</p>
+                        </div>
+                    `;
+                    this.updateDynamicTranslations();
+                    return;
+                }
+
+                container.innerHTML = notes.map(note => `
+                    <div class="note-card">
+                        <div class="note-content">${this.escapeHtml(note.content)}</div>
+                        <div class="note-actions">
+                            <span class="note-date">${this.formatDate(note.created_at)}</span>
+                            <div class="note-buttons">
+                                <button class="note-btn note-btn-copy" onclick="todoApp.copyNote(${note.id}, this)" data-note-content="${this.escapeHtml(note.content).replace(/"/g, '&quot;')}">
+                                    <i class="fas fa-copy"></i>
+                                    <span data-i18n="notes.copy">Copy</span>
+                                </button>
+                                <button class="note-btn note-btn-delete" onclick="todoApp.deleteNote(${note.id})">
+                                    <i class="fas fa-trash"></i>
+                                    <span data-i18n="notes.delete">Delete</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                this.updateDynamicTranslations();
+            }
+
+            async addNote() {
+                const content = document.getElementById('note-content').value.trim();
+
+                if (!content) {
+                    this.showNotification('Please enter a note', 'error');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/notes', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ content })
+                    });
+
+                    if (response.ok) {
+                        document.getElementById('note-content').value = '';
+                        this.loadNotes();
+                        this.showNotification('Note added successfully', 'success');
+                    } else {
+                        throw new Error('Error adding note');
+                    }
+                } catch (error) {
+                    this.showNotification('Error adding note', 'error');
+                }
+            }
+
+            async deleteNote(id) {
+                try {
+                    const response = await fetch(`/api/notes/${id}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        this.loadNotes();
+                        this.showNotification('Note deleted successfully', 'success');
+                    } else {
+                        throw new Error('Error deleting note');
+                    }
+                } catch (error) {
+                    this.showNotification('Error deleting note', 'error');
+                }
+            }
+
+            async copyNote(id, button) {
+                // Get note content from data attribute
+                const content = button.getAttribute('data-note-content');
+
+                if (!content) {
+                    this.showNotification('Error copying note', 'error');
+                    return;
+                }
+
+                // Try modern clipboard API first, fallback to older method
+                if (navigator.clipboard && window.isSecureContext) {
+                    try {
+                        await navigator.clipboard.writeText(content);
+                        this.showCopyFeedback(button);
+                        return;
+                    } catch (err) {
+                        // Fall through to fallback method
+                    }
+                }
+
+                // Fallback method using textarea
+                this.fallbackCopy(content, button);
+            }
+
+            fallbackCopy(text, button) {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.left = '-999999px';
+                textarea.style.top = '-999999px';
+                document.body.appendChild(textarea);
+                textarea.focus();
+                textarea.select();
+
+                try {
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        this.showCopyFeedback(button);
+                    } else {
+                        this.showNotification('Error copying note', 'error');
+                    }
+                } catch (err) {
+                    this.showNotification('Error copying note', 'error');
+                }
+
+                document.body.removeChild(textarea);
+            }
+
+            showCopyFeedback(button) {
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check"></i> <span data-i18n="notes.copied">Copied!</span>';
+                button.style.background = '#22c55e';
+
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.style.background = '';
+                }, 2000);
             }
 
             async moveTodoToFolder(todoId, newFolderId) {
@@ -2735,8 +3769,12 @@
                     'general': translations[this.currentLanguage].categories.general
                 }[todo.category];
 
+                const isSelected = this.selectedTasks.has(String(todo.id));
+
                 return `
-                    <div class="todo-item ${todo.completed ? 'completed' : ''} fade-in">
+                    <div class="todo-item ${todo.completed ? 'completed' : ''} ${isSelected ? 'selected' : ''} fade-in" data-todo-id="${todo.id}">
+                        <div class="todo-checkbox-wrapper ${isSelected ? 'checked' : ''}" onclick="todoApp.toggleTaskSelection(${todo.id})"></div>
+                        <input type="checkbox" class="todo-checkbox" ${isSelected ? 'checked' : ''} onchange="todoApp.toggleTaskSelection(${todo.id})">
                         <div class="todo-header">
                             <div style="display: flex; flex-direction: column; align-items: flex-start;">
                                 <div class="todo-title" title="${this.escapeHtml(todo.title)}">${this.escapeHtml(todo.title)}</div>

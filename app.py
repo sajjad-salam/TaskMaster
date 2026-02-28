@@ -1,3 +1,21 @@
+import sys
+import io
+
+# Safe print function that works without console
+def safe_print(*args, **kwargs):
+    try:
+        if sys.stdout is not None:
+            print(*args, **kwargs)
+    except:
+        pass
+
+# Fix encoding for Windows console (only if stdout exists)
+if sys.platform == 'win32':
+    if sys.stdout is not None:
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    if sys.stderr is not None:
+        sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
 import warnings
 warnings.filterwarnings("ignore")
 import logging
@@ -36,7 +54,7 @@ if TELEGRAM_ENABLED and TELEGRAM_TOKEN != "YOUR_BOT_TOKEN_HERE":
         from telebot import types
         telebot_available = True
     except ImportError:
-        print("⚠️ telebot not installed. Install it with: pip install pyTelegramBotAPI")
+        safe_print("⚠️ telebot not installed. Install it with: pip install pyTelegramBotAPI")
         telebot_available = False
 else:
     telebot_available = False
@@ -77,7 +95,17 @@ def init_db():
             FOREIGN KEY (folder_id) REFERENCES folders (id) ON DELETE SET NULL
         )
     ''')
-    
+
+    # Create notes table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS notes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            content TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
     # Insert default folder if none exists
     cursor.execute('SELECT COUNT(*) FROM folders')
     if cursor.fetchone()[0] == 0:
@@ -180,11 +208,11 @@ def setup_telegram_bot():
     global bot
 
     if not TELEGRAM_ENABLED:
-        print("⚠️ Telegram bot is disabled in telegram_config.json")
+        safe_print("⚠️ Telegram bot is disabled in telegram_config.json")
         return None
 
     if TELEGRAM_TOKEN == "YOUR_BOT_TOKEN_HERE":
-        print("⚠️ Telegram bot token not configured!")
+        safe_print("⚠️ Telegram bot token not configured!")
         print("To enable Telegram bot:")
         print("1. Open telegram_config.json")
         print("2. Replace 'YOUR_BOT_TOKEN_HERE' with your bot token from @BotFather")
@@ -192,7 +220,7 @@ def setup_telegram_bot():
         return None
 
     if not telebot_available:
-        print("⚠️ telebot library not installed!")
+        safe_print("⚠️ telebot library not installed!")
         print("Install it with: pip install pyTelegramBotAPI")
         return None
 
@@ -266,7 +294,7 @@ I'm your personal task assistant. Just send me any text and I'll save it as a ta
         return bot
 
     except Exception as e:
-        print(f"❌ Error setting up Telegram bot: {e}")
+        safe_print(f"❌ Error setting up Telegram bot: {e}")
         return None
 
 def run_telegram_bot():
@@ -276,12 +304,12 @@ def run_telegram_bot():
     bot = setup_telegram_bot()
 
     if bot:
-        print("🤖 Telegram bot is running...")
-        print("💬 Send messages to your bot to save tasks!")
+        safe_print("🤖 Telegram bot is running...")
+        safe_print("💬 Send messages to your bot to save tasks!")
         try:
             bot.polling(non_stop=True, interval=1, timeout=60)
         except Exception as e:
-            print(f"❌ Bot error: {e}")
+            safe_print(f"❌ Bot error: {e}")
 
 @app.route('/api/telegram/import', methods=['POST'])
 def import_telegram_tasks():
@@ -575,6 +603,56 @@ def delete_todo(todo_id):
     
     return jsonify({'message': 'Todo deleted successfully'})
 
+# ============= NOTES API =============
+
+@app.route('/api/notes', methods=['GET'])
+def get_notes():
+    conn = sqlite3.connect('todos.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT id, content, created_at, updated_at FROM notes ORDER BY created_at DESC')
+    notes = [{
+        'id': row[0],
+        'content': row[1],
+        'created_at': row[2],
+        'updated_at': row[3]
+    } for row in cursor.fetchall()]
+    conn.close()
+    return jsonify(notes)
+
+@app.route('/api/notes', methods=['POST'])
+def create_note():
+    data = request.get_json()
+    content = data.get('content', '').strip()
+
+    if not content:
+        return jsonify({'error': 'Content is required'}), 400
+
+    conn = sqlite3.connect('todos.db')
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO notes (content) VALUES (?)', (content,))
+    note_id = cursor.lastrowid
+    conn.commit()
+    conn.close()
+
+    return jsonify({'id': note_id, 'message': 'Note created successfully'}), 201
+
+@app.route('/api/notes/<int:note_id>', methods=['DELETE'])
+def delete_note(note_id):
+    conn = sqlite3.connect('todos.db')
+    cursor = conn.cursor()
+
+    # Check if note exists
+    cursor.execute('SELECT * FROM notes WHERE id = ?', (note_id,))
+    if not cursor.fetchone():
+        conn.close()
+        return jsonify({'error': 'Note not found'}), 404
+
+    cursor.execute('DELETE FROM notes WHERE id = ?', (note_id,))
+    conn.commit()
+    conn.close()
+
+    return jsonify({'message': 'Note deleted successfully'})
+
 @app.route('/api/todos/<int:todo_id>/toggle', methods=['PUT'])
 def toggle_todo(todo_id):
     conn = sqlite3.connect('todos.db')
@@ -813,6 +891,68 @@ def unarchive_todo(todo_id):
 
     return jsonify({'message': 'Todo unarchived successfully'})
 
+# ============= BATCH OPERATIONS =============
+
+@app.route('/api/todos/batch', methods=['DELETE'])
+def batch_delete_todos():
+    """Delete multiple todos at once"""
+    data = request.get_json()
+    if not data or 'ids' not in data:
+        return jsonify({'error': 'IDs list is required'}), 400
+
+    todo_ids = data['ids']
+    if not isinstance(todo_ids, list) or len(todo_ids) == 0:
+        return jsonify({'error': 'IDs must be a non-empty list'}), 400
+
+    conn = sqlite3.connect('todos.db')
+    cursor = conn.cursor()
+
+    # Use placeholders for all IDs
+    placeholders = ','.join('?' * len(todo_ids))
+    query = f'DELETE FROM todos WHERE id IN ({placeholders})'
+
+    cursor.execute(query, todo_ids)
+    deleted_count = cursor.rowcount
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({'message': f'{deleted_count} todo(s) deleted successfully', 'count': deleted_count})
+
+@app.route('/api/todos/batch/move', methods=['PUT'])
+def batch_move_todos():
+    """Move multiple todos to a folder at once"""
+    data = request.get_json()
+    if not data or 'ids' not in data or 'folder_id' not in data:
+        return jsonify({'error': 'IDs list and folder_id are required'}), 400
+
+    todo_ids = data['ids']
+    folder_id = data['folder_id']
+
+    if not isinstance(todo_ids, list) or len(todo_ids) == 0:
+        return jsonify({'error': 'IDs must be a non-empty list'}), 400
+
+    conn = sqlite3.connect('todos.db')
+    cursor = conn.cursor()
+
+    # Verify folder exists
+    cursor.execute('SELECT * FROM folders WHERE id = ?', (folder_id,))
+    if not cursor.fetchone():
+        conn.close()
+        return jsonify({'error': 'Folder not found'}), 404
+
+    # Update all todos
+    placeholders = ','.join('?' * len(todo_ids))
+    query = f'UPDATE todos SET folder_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id IN ({placeholders})'
+
+    cursor.execute(query, [folder_id] + todo_ids)
+    updated_count = cursor.rowcount
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({'message': f'{updated_count} todo(s) moved successfully', 'count': updated_count})
+
 @app.route('/api/stats')
 def get_stats():
     conn = sqlite3.connect('todos.db')
@@ -863,12 +1003,12 @@ def start_flask():
 
 if __name__ == '__main__':
     # Import pending Telegram tasks on startup
-    print("📥 Checking for pending Telegram tasks...")
+    safe_print("📥 Checking for pending Telegram tasks...")
     imported_count = import_telegram_tasks_to_db()
     if imported_count > 0:
-        print(f"✅ Imported {imported_count} task(s) from Telegram!")
+        safe_print(f"✅ Imported {imported_count} task(s) from Telegram!")
     else:
-        print("📭 No pending Telegram tasks.")
+        safe_print("📭 No pending Telegram tasks.")
 
     # Start Flask server
     flask_thread = threading.Thread(target=start_flask)
