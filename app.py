@@ -21,7 +21,7 @@ warnings.filterwarnings("ignore")
 import logging
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_file
 import sqlite3
 import json
 from datetime import datetime
@@ -335,6 +335,10 @@ def index():
 @app.route('/favicon.ico')
 def favicon():
     return '', 204
+
+@app.route('/mainfont.ttf')
+def serve_font():
+    return send_file('mainfont.ttf', mimetype='font/ttf')
 
 # API Routes for Folders
 @app.route('/api/folders', methods=['GET'])

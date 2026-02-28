@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,13 +9,16 @@
     <style>
         @font-face {
             font-family: 'ArabicCustom';
-            src: url('@mainfont.ttf') format('truetype');
+            src: url('/mainfont.ttf') format('truetype');
             font-weight: normal;
             font-style: normal;
         }
 
-        body[data-lang="ar"], body[lang="ar"] {
+        body {
             font-family: 'ArabicCustom', 'Inter', sans-serif;
+        }
+
+        body[data-lang="ar"], body[lang="ar"] {
             direction: rtl;
         }
 
@@ -107,6 +110,7 @@
         }
 
         .language-switcher {
+            display: none;
             position: absolute;
             top: 0;
             right: 0;
@@ -1579,21 +1583,14 @@
         }
     </style>
 </head>
-<body>
+<body data-lang="ar">
     <div class="container">
         <div class="header">
             <div class="language-switcher">
-                <button class="language-btn active" data-lang="en">EN</button>
-                <button class="language-btn" data-lang="ar">عربي</button>
+                <button class="language-btn" data-lang="en">EN</button>
+                <button class="language-btn active" data-lang="ar">عربي</button>
             </div>
-            <h1><i class="fas fa-tasks"></i> <span data-i18n="title">TaskMaster</span></h1>
-            <p data-i18n="subtitle">Manage your tasks efficiently and organized</p>
-            <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 5px;">
-                <i class="fas fa-keyboard"></i> <span data-i18n="shortcuts.hint">Press <strong>Ctrl+N</strong> to quickly add a task</span>
-            </p>
-            <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 5px;">
-                <i class="fas fa-robot" id="telegram-status-icon"></i> <span id="telegram-status-text">Checking bot status...</span>
-            </p>
+            <h1><i class="fas fa-tasks"></i> <span data-i18n="title">برنامج المهندس</span></h1>
         </div>
 
         <div class="view-tabs">
@@ -1977,8 +1974,8 @@
                 }
             },
             ar: {
-                title: "مدير المهام",
-                subtitle: "إدارة مهامك بكفاءة وتنظيم",
+                title: "المهندس",
+                // subtitle: "إدارة مهامك بكفاءة وتنظيم",
                 views: {
                     all_tasks: "جميع المهام",
                     today: "اليوم",
@@ -2008,9 +2005,6 @@
                     title: "مهام مقترحة",
                     hint: "اسحب المهام إلى أعمدة كانبان لإضافتها إلى اليوم",
                     empty: "لا توجد مهام مقترحة"
-                },
-                shortcuts: {
-                    hint: "اضغط <strong>Ctrl+N</strong> لإضافة مهمة • <strong>Ctrl+R</strong> للتحديث"
                 },
                 archive: {
                     title: "المهام المؤرشفة",
@@ -2097,7 +2091,7 @@
             constructor() {
                 this.todos = [];
                 this.folders = [];
-                this.currentLanguage = 'en';
+                this.currentLanguage = 'ar';
                 this.currentView = 'today';
                 this.lastCreatedFolderId = null;
                 this.filters = {
@@ -2116,6 +2110,7 @@
 
             init() {
                 this.setupLanguageSwitcher();
+                this.setLanguage(this.currentLanguage);
                 this.bindEvents();
                 this.setupKeyboardShortcuts();
                 this.setupAutoResizeTextarea();
