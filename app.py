@@ -1019,13 +1019,21 @@ if __name__ == '__main__':
     flask_thread.daemon = True
     flask_thread.start()
 
+    # Wait for Flask to be ready (reduced wait time)
     import time
-    time.sleep(1)
+    import socket
+    for _ in range(20):  # Wait up to 2 seconds total
+        try:
+            socket.create_connection(("127.0.0.1", 5000), timeout=0.1)
+            break
+        except:
+            time.sleep(0.1)
 
-    # Start Telegram bot in background
-    bot_thread = threading.Thread(target=run_telegram_bot)
-    bot_thread.daemon = True
-    bot_thread.start()
+    # Start Telegram bot in background (non-blocking)
+    if TELEGRAM_ENABLED:
+        bot_thread = threading.Thread(target=run_telegram_bot)
+        bot_thread.daemon = True
+        bot_thread.start()
 
     # Create window
     webview.create_window("TaskMaster", "http://127.0.0.1:5000", width=1100, height=800)
