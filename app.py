@@ -61,6 +61,20 @@ else:
 
 app = Flask(__name__)
 
+# ============ EXIT API FOR PYWEBVIEW ============
+
+class ExitAPI:
+    """API class to handle app exit from JavaScript"""
+    def exit(self):
+        """Exit the application"""
+        import os
+        # Force exit immediately
+        os._exit(0)
+        return True
+
+# Create global instance
+exit_api = ExitAPI()
+
 # Database initialization
 def init_db():
     conn = sqlite3.connect('todos.db')
@@ -825,6 +839,51 @@ def update_kanban_status(todo_id):
 
     return jsonify({'message': 'Kanban status updated successfully'})
 
+@app.route('/api/todos/batch/kanban-status', methods=['PUT'])
+def batch_update_kanban_status():
+    """Update kanban status for multiple todos at once"""
+    data = request.get_json()
+
+    if not data or 'ids' not in data or 'status' not in data:
+        return jsonify({'error': 'IDs list and status are required'}), 400
+
+    todo_ids = data['ids']
+    status = data['status']
+
+    if not isinstance(todo_ids, list) or len(todo_ids) == 0:
+        return jsonify({'error': 'IDs must be a non-empty list'}), 400
+
+    if status not in ['todo', 'doing', 'done']:
+        return jsonify({'error': 'Invalid status. Must be todo, doing, or done'}), 400
+
+    conn = sqlite3.connect('todos.db')
+    cursor = conn.cursor()
+
+    # Update kanban status for all todos
+    placeholders = ','.join('?' * len(todo_ids))
+
+    # If status is 'done', also mark as completed and archived
+    if status == 'done':
+        query = f'''
+            UPDATE todos
+            SET kanban_status = ?, completed = 1, archived = 1, updated_at = CURRENT_TIMESTAMP
+            WHERE id IN ({placeholders})
+        '''
+        cursor.execute(query, [status] + todo_ids)
+    else:
+        query = f'''
+            UPDATE todos
+            SET kanban_status = ?, completed = 0, archived = 0, updated_at = CURRENT_TIMESTAMP
+            WHERE id IN ({placeholders})
+        '''
+        cursor.execute(query, [status] + todo_ids)
+
+    updated_count = cursor.rowcount
+    conn.commit()
+    conn.close()
+
+    return jsonify({'message': f'{updated_count} task(s) updated successfully', 'count': updated_count})
+
 @app.route('/api/todos/<int:todo_id>/add-to-today', methods=['PUT'])
 def add_to_today(todo_id):
     conn = sqlite3.connect('todos.db')
@@ -975,6 +1034,39 @@ def batch_move_todos():
 
     return jsonify({'message': f'{updated_count} todo(s) moved successfully', 'count': updated_count})
 
+@app.route('/api/exit', methods=['POST'])
+def exit_app():
+    """API endpoint to close the application"""
+    # Schedule the app to exit after the response is sent
+    import threading
+    import sys
+    def close_app():
+        import time
+        time.sleep(0.1)  # Small delay to allow response to be sent
+        sys.exit(0)
+    threading.Thread(target=close_app, daemon=True).start()
+    return jsonify({'message': 'Exiting...'})
+
+@app.route('/api/window-state', methods=['POST'])
+def save_window_state_api():
+    """API endpoint to save window state"""
+    try:
+        data = request.get_json()
+        if data:
+            # Validate and clamp values
+            state = {
+                'width': min(max(data.get('width', 1100), 800), 3840),
+                'height': min(max(data.get('height', 800), 600), 2160),
+                'x': max(0, data.get('x', 100)),
+                'y': max(0, data.get('y', 100))
+            }
+            with open(WINDOW_STATE_FILE, 'w') as f:
+                json.dump(state, f)
+            return jsonify({'message': 'Window state saved'})
+    except Exception as e:
+        safe_print(f"Error saving window state via API: {e}")
+    return jsonify({'message': 'Failed to save window state'}), 400
+
 @app.route('/api/stats')
 def get_stats():
     conn = sqlite3.connect('todos.db')
@@ -1023,6 +1115,19 @@ def get_stats():
 def start_flask():
     app.run(debug=False, host='127.0.0.1', port=5000, use_reloader=False)
 
+# Window state file
+WINDOW_STATE_FILE = "window_state.json"
+
+def load_window_state():
+    """Load window size and position from file"""
+    try:
+        if os.path.exists(WINDOW_STATE_FILE):
+            with open(WINDOW_STATE_FILE, 'r') as f:
+                return json.load(f)
+    except Exception as e:
+        safe_print(f"Error loading window state: {e}")
+    return None
+
 if __name__ == '__main__':
     # Import pending Telegram tasks on startup
     safe_print("📥 Checking for pending Telegram tasks...")
@@ -1053,6 +1158,24 @@ if __name__ == '__main__':
         bot_thread.daemon = True
         bot_thread.start()
 
-    # Create window
-    webview.create_window("TaskMaster", "http://127.0.0.1:5000", width=1100, height=800)
+    # Load saved window state or use defaults
+    saved_state = load_window_state()
+    width = saved_state.get('width', 1100) if saved_state else 1100
+    height = saved_state.get('height', 800) if saved_state else 800
+    x = saved_state.get('x', None) if saved_state else None
+    y = saved_state.get('y', None) if saved_state else None
+
+    # Create window with saved size and position
+    window = webview.create_window(
+        "TaskMaster",
+        "http://127.0.0.1:5000",
+        width=width,
+        height=height,
+        x=x,
+        y=y,
+        resizable=True,
+        frameless=False,
+        js_api=exit_api  # Add exit API
+    )
+
     webview.start(gui='edgechromium') 

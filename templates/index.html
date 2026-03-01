@@ -260,9 +260,9 @@
             flex-direction: row;
         }
 
-        /* RTL support for suggested tasks - center cards */
+        /* RTL support for suggested tasks - align right */
         body[data-lang="ar"] .suggested-tasks-container {
-            justify-content: center;
+            justify-content: flex-start;
         }
 
         .main-content {
@@ -1060,6 +1060,48 @@
 
         .bulk-action-toolbar.visible {
             transform: translateX(-50%) translateY(0);
+        }
+
+        /* Drag indicator for multi-task dragging */
+        .drag-indicator {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--accent-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 4px 20px rgba(0, 113, 227, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            z-index: 2000;
+            pointer-events: none;
+            transition: transform 0.2s ease;
+            opacity: 0;
+        }
+
+        .drag-indicator.visible {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .drag-indicator i {
+            font-size: 1.1rem;
+        }
+
+        .drag-indicator #drag-count {
+            background: rgba(255, 255, 255, 0.25);
+            padding: 2px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+        }
+
+        /* Show other selected cards as semi-transparent during drag */
+        .kanban-card.dragging-other-selected {
+            opacity: 0.5;
         }
 
         .bulk-action-info {
@@ -3439,10 +3481,13 @@
             <h1><i class="fas fa-tasks"></i> <span data-i18n="title">برنامج المهندس</span></h1>
             <div class="keyboard-shortcuts-hint" id="keyboard-shortcuts-hint">
                 <span class="shortcut-hint"><kbd>N</kbd> <span data-i18n="shortcuts.new_task">New Task</span></span>
+                <span class="shortcut-hint"><kbd>T/ف</kbd> <span data-i18n="shortcuts.today">Today</span></span>
+                <span class="shortcut-hint"><kbd>A/ش</kbd> <span data-i18n="shortcuts.all_tasks">All Tasks</span></span>
                 <span class="shortcut-hint"><kbd>↑↓</kbd> <span data-i18n="shortcuts.navigate">Navigate</span></span>
                 <span class="shortcut-hint"><kbd>Space</kbd> <span data-i18n="shortcuts.complete">Complete</span></span>
                 <span class="shortcut-hint"><kbd>Del</kbd> <span data-i18n="shortcuts.delete">Delete</span></span>
                 <span class="shortcut-hint"><kbd>Ctrl+Tab</kbd> <span data-i18n="shortcuts.switch_view">Switch View</span></span>
+                <span class="shortcut-hint"><kbd>Ctrl+W</kbd> <span data-i18n="shortcuts.exit">Exit</span></span>
                 <button class="shortcuts-toggle" onclick="document.getElementById('keyboard-shortcuts-hint').classList.toggle('expanded')">
                     <i class="fas fa-keyboard"></i>
                 </button>
@@ -3713,6 +3758,12 @@
         </div>
     </div>
 
+    <!-- Drag Indicator -->
+    <div class="drag-indicator" id="drag-indicator">
+        <i class="fas fa-grip-vertical"></i>
+        <span id="drag-count">0</span>
+    </div>
+
     <script>
         // Language translations
         const translations = {
@@ -3755,12 +3806,15 @@
                     empty: "لايوجد مهام لاقتراحها عليك"
                 },
                 shortcuts: {
-                    hint: "Press <strong>Ctrl+N</strong> to add task • <strong>Ctrl+R</strong> to refresh",
+                    hint: "Press <strong>Ctrl+N</strong> to add task • <strong>Ctrl+R</strong> to refresh • <strong>Ctrl+W</strong> to exit",
                     new_task: "New Task",
+                    today: "Today",
+                    all_tasks: "All Tasks",
                     navigate: "Navigate",
                     complete: "Complete",
                     delete: "Delete",
-                    switch_view: "Switch View"
+                    switch_view: "Switch View",
+                    exit: "Exit"
                 },
                 archive: {
                     title: "Archived Tasks",
@@ -3901,12 +3955,15 @@
                     empty: "لا توجد مهام مقترحة"
                 },
                 shortcuts: {
-                    hint: "اضغط <strong>Ctrl+N</strong> لإضافة مهمة • <strong>Ctrl+R</strong> للتحديث",
+                    hint: "اضغط <strong>Ctrl+N</strong> لإضافة مهمة • <strong>Ctrl+R</strong> للتحديث • <strong>Ctrl+W</strong> للخروج",
                     new_task: "مهمة جديدة",
+                    today: "اليوم",
+                    all_tasks: "جميع المهام",
                     navigate: "تنقل",
                     complete: "إكمال",
                     delete: "حذف",
-                    switch_view: "تبديل العرض"
+                    switch_view: "تبديل العرض",
+                    exit: "خروج"
                 },
                 archive: {
                     title: "المهام المؤرشفة",
@@ -4183,6 +4240,47 @@
                         return;
                     }
 
+                    // ============ Ctrl+W - Exit Application ============
+                    if ((e.ctrlKey || e.metaKey) && e.code === 'KeyW' && !isTyping) {
+                        e.preventDefault();
+                        // Use pywebview API for direct Python call (more reliable than HTTP)
+                        if (window.pywebview) {
+                            window.pywebview.api.exit();
+                        } else {
+                            // Fallback to HTTP if pywebview API not available
+                            fetch('/api/exit', { method: 'POST' });
+                        }
+                        return;
+                    }
+
+                    // ============ T - Today View ============
+                    if (e.code === 'KeyT' && !e.ctrlKey && !e.metaKey && !e.altKey && !isTyping) {
+                        e.preventDefault();
+                        this.switchView('today');
+                        return;
+                    }
+
+                    // ============ A - All Tasks View ============
+                    if (e.code === 'KeyA' && !e.ctrlKey && !e.metaKey && !e.altKey && !isTyping) {
+                        e.preventDefault();
+                        this.switchView('all-tasks');
+                        return;
+                    }
+
+                    // ============ R - Archive View ============
+                    if (e.code === 'KeyR' && !e.ctrlKey && !e.metaKey && !e.altKey && !isTyping) {
+                        e.preventDefault();
+                        this.switchView('archive');
+                        return;
+                    }
+
+                    // ============ S - Notes View ============
+                    if (e.code === 'KeyS' && !e.ctrlKey && !e.metaKey && !e.altKey && !isTyping) {
+                        e.preventDefault();
+                        this.switchView('notes');
+                        return;
+                    }
+
                     // ============ Escape - Close modals / clear selection ============
                     if (e.key === 'Escape') {
                         if (this.quickAddMode) {
@@ -4232,14 +4330,14 @@
             focusNewTaskInput() {
                 // Switch to all tasks view to show the input
                 this.switchView('all');
-                // Focus on the title input
+                // Focus on the title input (wait for view transition to complete)
                 setTimeout(() => {
                     const titleInput = document.getElementById('todo-title');
                     if (titleInput) {
                         titleInput.focus();
                         titleInput.select();
                     }
-                }, 100);
+                }, 300); // Increased to wait for view transition (150ms) + fade animation
             }
 
             getVisibleTaskItems() {
@@ -4547,6 +4645,11 @@
                     if (isManual) {
                         item.classList.add('manually-selected');
                     }
+                    // Check the checkbox
+                    const checkbox = item.querySelector('.todo-checkbox');
+                    if (checkbox) {
+                        checkbox.checked = true;
+                    }
                 }
                 this.updateBulkToolbar();
             }
@@ -4845,13 +4948,6 @@
                         todosContainer.classList.remove('fade-out');
                         todosContainer.classList.add('fade-in');
                         this.loadTodos();
-                        // Auto-focus on title input for quick task entry
-                        setTimeout(() => {
-                            const titleInput = document.getElementById('todo-title');
-                            if (titleInput) {
-                                titleInput.focus();
-                            }
-                        }, 100);
                     }
 
                     // Remove animation classes after animation completes
@@ -4996,6 +5092,24 @@
 
                     card.addEventListener('dragend', () => {
                         card.classList.remove('dragging');
+                    });
+
+                    // Ctrl+click to select/deselect task
+                    card.addEventListener('click', (e) => {
+                        // Don't trigger if clicking on checkbox, button, or links
+                        if (e.target.closest('.todo-checkbox-wrapper') ||
+                            e.target.closest('.todo-checkbox') ||
+                            e.target.closest('button') ||
+                            e.target.closest('a')) {
+                            return;
+                        }
+
+                        if (e.ctrlKey || e.metaKey) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const todoId = card.dataset.todoId;
+                            this.toggleTaskSelection(todoId);
+                        }
                     });
                 });
             }
@@ -5162,7 +5276,34 @@
                 cards.forEach(card => {
                     card.addEventListener('dragstart', (e) => {
                         card.classList.add('dragging');
-                        e.dataTransfer.setData('text/plain', card.dataset.todoId);
+                        const todoId = card.dataset.todoId;
+                        e.dataTransfer.setData('text/plain', todoId);
+
+                        // If this card is selected and there are other selected tasks,
+                        // include all selected task IDs in the drag
+                        if (this.selectedTasks.has(todoId) && this.selectedTasks.size > 1) {
+                            const selectedIds = Array.from(this.selectedTasks);
+                            e.dataTransfer.setData('selected-tasks', JSON.stringify(selectedIds));
+                            e.dataTransfer.effectAllowed = 'move';
+
+                            // Show drag indicator
+                            const indicator = document.getElementById('drag-indicator');
+                            const dragCount = document.getElementById('drag-count');
+                            if (indicator && dragCount) {
+                                dragCount.textContent = selectedIds.length;
+                                indicator.classList.add('visible');
+                            }
+
+                            // Add visual feedback to other selected cards
+                            this.selectedTasks.forEach(id => {
+                                if (id !== todoId) {
+                                    const otherCard = document.querySelector(`[data-todo-id="${id}"]`);
+                                    if (otherCard) {
+                                        otherCard.classList.add('dragging-other-selected');
+                                    }
+                                }
+                            });
+                        }
                     });
 
                     card.addEventListener('dragend', () => {
@@ -5170,6 +5311,35 @@
                         document.querySelectorAll('.kanban-column').forEach(col => {
                             col.classList.remove('drag-over');
                         });
+
+                        // Hide drag indicator
+                        const indicator = document.getElementById('drag-indicator');
+                        if (indicator) {
+                            indicator.classList.remove('visible');
+                        }
+
+                        // Remove visual feedback from other selected cards
+                        document.querySelectorAll('.dragging-other-selected').forEach(c => {
+                            c.classList.remove('dragging-other-selected');
+                        });
+                    });
+
+                    // Ctrl+click to select/deselect task
+                    card.addEventListener('click', (e) => {
+                        // Don't trigger if clicking on checkbox, button, or links
+                        if (e.target.closest('.todo-checkbox-wrapper') ||
+                            e.target.closest('.todo-checkbox') ||
+                            e.target.closest('button') ||
+                            e.target.closest('a')) {
+                            return;
+                        }
+
+                        if (e.ctrlKey || e.metaKey) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const todoId = card.dataset.todoId;
+                            this.toggleTaskSelection(todoId);
+                        }
                     });
                 });
 
@@ -5198,7 +5368,14 @@
                         if (isSuggestedTask) {
                             this.addSuggestedTaskToToday(todoId, newStatus);
                         } else {
-                            this.updateKanbanStatus(todoId, newStatus);
+                            // Check if multiple tasks are being dragged
+                            const selectedTasksJson = e.dataTransfer.getData('selected-tasks');
+                            if (selectedTasksJson) {
+                                const selectedIds = JSON.parse(selectedTasksJson);
+                                this.updateMultipleKanbanStatus(selectedIds, newStatus);
+                            } else {
+                                this.updateKanbanStatus(todoId, newStatus);
+                            }
                         }
                     });
                 });
@@ -5222,7 +5399,14 @@
                         if (isSuggestedTask) {
                             this.addSuggestedTaskToToday(todoId, newStatus);
                         } else {
-                            this.updateKanbanStatus(todoId, newStatus);
+                            // Check if multiple tasks are being dragged
+                            const selectedTasksJson = e.dataTransfer.getData('selected-tasks');
+                            if (selectedTasksJson) {
+                                const selectedIds = JSON.parse(selectedTasksJson);
+                                this.updateMultipleKanbanStatus(selectedIds, newStatus);
+                            } else {
+                                this.updateKanbanStatus(todoId, newStatus);
+                            }
                         }
                     });
                 });
@@ -5283,6 +5467,24 @@
                             // this.showNotification('Task reordered', 'info');
                         }
                     });
+
+                    // Ctrl+click to select/deselect task
+                    item.addEventListener('click', (e) => {
+                        // Don't trigger if clicking on checkbox, button, or links
+                        if (e.target.closest('.todo-checkbox-wrapper') ||
+                            e.target.closest('.todo-checkbox') ||
+                            e.target.closest('button') ||
+                            e.target.closest('a')) {
+                            return;
+                        }
+
+                        if (e.ctrlKey || e.metaKey) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const todoId = item.dataset.todoId;
+                            this.toggleTaskSelection(todoId);
+                        }
+                    });
                 });
             }
 
@@ -5330,6 +5532,31 @@
                         this.loadTodayTodos();
                         this.loadStats();
                         this.showNotification('Task status updated', 'success');
+                    }
+                } catch (error) {
+                    this.showNotification('Error updating status', 'error');
+                }
+            }
+
+            async updateMultipleKanbanStatus(todoIds, status) {
+                try {
+                    const response = await fetch('/api/todos/batch/kanban-status', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ids: todoIds, status })
+                    });
+
+                    if (response.ok) {
+                        // Play sound and show effect if tasks moved to Done
+                        if (status === 'done') {
+                            this.playSuccessEffect();
+                        }
+                        // Clear selection after moving
+                        this.clearSelection();
+                        this.loadTodayTodos();
+                        this.loadStats();
+                        const count = todoIds.length;
+                        this.showNotification(`${count} task${count > 1 ? 's' : ''} moved to ${status}`, 'success');
                     }
                 } catch (error) {
                     this.showNotification('Error updating status', 'error');
@@ -5708,13 +5935,22 @@
                     }
                 });
 
-                // Double-click to complete tasks
+                // Double-click to add task to Today
                 document.getElementById('todos-container').addEventListener('dblclick', (e) => {
                     const todoItem = e.target.closest('.todo-item');
                     if (todoItem && !e.target.closest('button') && !e.target.closest('input') && !e.target.closest('.todo-checkbox-wrapper')) {
                         const todoId = todoItem.getAttribute('data-todo-id');
                         if (todoId) {
-                            this.toggleTodo(parseInt(todoId));
+                            // Add to Today via API
+                            fetch(`/api/todos/${todoId}/add-to-today`, {
+                                method: 'PUT'
+                            }).then(response => {
+                                if (response.ok) {
+                                    this.showNotification('Task added to Today', 'success');
+                                    // Refresh the todos list
+                                    this.loadTodos();
+                                }
+                            });
                         }
                     }
                 });
@@ -7100,14 +7336,24 @@
                 this.setMascotEmotion('excited');
                 this.mascotSpeak('excited');
 
-                // Close button handler
+                // Close handler function
                 const closeHandler = () => {
                     overlay.classList.remove('show');
                     closeBtn.removeEventListener('click', closeHandler);
+                    document.removeEventListener('keydown', keyHandler);
                     this.setMascotEmotion('happy');
                 };
 
+                // Keyboard handler - close on Enter or Escape
+                const keyHandler = (e) => {
+                    if (e.key === 'Enter' || e.key === 'Escape') {
+                        e.preventDefault();
+                        closeHandler();
+                    }
+                };
+
                 closeBtn.addEventListener('click', closeHandler);
+                document.addEventListener('keydown', keyHandler);
 
                 // Auto-close after 5 seconds
                 setTimeout(() => {
@@ -7133,10 +7379,84 @@
             }
         }
 
+        // Save window state before closing
+        function saveWindowState() {
+            const state = {
+                width: window.innerWidth,
+                height: window.innerHeight,
+                x: window.screenX,
+                y: window.screenY
+            };
+            // Use navigator.sendBeacon for reliable delivery during page unload
+            const blob = new Blob([JSON.stringify(state)], { type: 'application/json' });
+            navigator.sendBeacon('/api/window-state', blob);
+        }
+
+        // Save on beforeunload and periodically
+        window.addEventListener('beforeunload', saveWindowState);
+        setInterval(saveWindowState, 5000); // Save every 5 seconds as backup
+
         // Initialize the app when the page loads
         let todoApp;
         document.addEventListener('DOMContentLoaded', () => {
             todoApp = new TodoApp();
+
+            // Track double ESC press
+            let lastEscPress = 0;
+            const DOUBLE_ESC_DELAY = 300; // milliseconds
+
+            // Simple global Q key handler for exit (outside of TodoApp)
+            document.addEventListener('keydown', (e) => {
+                const tag = document.activeElement.tagName;
+                const isTyping = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+
+                // ESC - Blur active input/textarea or double press to go to Today
+                if (e.key === 'Escape') {
+                    const now = Date.now();
+
+                    if (isTyping) {
+                        e.preventDefault();
+                        document.activeElement.blur();
+                        // Don't reset timer, keep it for double ESC detection
+                        if (now - lastEscPress < DOUBLE_ESC_DELAY) {
+                            // Double ESC - go to Today
+                            todoApp.switchView('today');
+                            lastEscPress = 0;
+                        } else {
+                            lastEscPress = now;
+                        }
+                    } else {
+                        // Check for double ESC
+                        if (now - lastEscPress < DOUBLE_ESC_DELAY) {
+                            e.preventDefault();
+                            todoApp.switchView('today');
+                            lastEscPress = 0;
+                        } else {
+                            lastEscPress = now;
+                        }
+                    }
+                }
+
+                // Q - Exit app
+                if (e.key === 'q' && !e.ctrlKey && !e.metaKey && !e.altKey && !isTyping) {
+                    e.preventDefault();
+                    if (window.pywebview && window.pywebview.api) {
+                        window.pywebview.api.exit();
+                    }
+                }
+
+                // T / ف - Open Today page (English and Arabic)
+                if ((e.key === 't' || e.key === 'ف') && !e.ctrlKey && !e.metaKey && !e.altKey && !isTyping) {
+                    e.preventDefault();
+                    todoApp.switchView('today');
+                }
+
+                // A / ش - Open All Tasks page (English and Arabic)
+                if ((e.key === 'a' || e.key === 'ش') && !e.ctrlKey && !e.metaKey && !e.altKey && !isTyping) {
+                    e.preventDefault();
+                    todoApp.switchView('all-tasks');
+                }
+            });
         });
     </script>
 </body>
