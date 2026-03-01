@@ -260,6 +260,11 @@
             flex-direction: row;
         }
 
+        /* RTL support for suggested tasks - center cards */
+        body[data-lang="ar"] .suggested-tasks-container {
+            justify-content: center;
+        }
+
         .main-content {
             background: var(--bg-secondary);
             border-radius: var(--radius-lg);
@@ -1258,7 +1263,7 @@
         /* Kanban Board Styles */
         .kanban-container {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 16px;
             padding: 24px;
             background: var(--bg-tertiary);
@@ -3437,6 +3442,7 @@
                 <span class="shortcut-hint"><kbd>↑↓</kbd> <span data-i18n="shortcuts.navigate">Navigate</span></span>
                 <span class="shortcut-hint"><kbd>Space</kbd> <span data-i18n="shortcuts.complete">Complete</span></span>
                 <span class="shortcut-hint"><kbd>Del</kbd> <span data-i18n="shortcuts.delete">Delete</span></span>
+                <span class="shortcut-hint"><kbd>Ctrl+Tab</kbd> <span data-i18n="shortcuts.switch_view">Switch View</span></span>
                 <button class="shortcuts-toggle" onclick="document.getElementById('keyboard-shortcuts-hint').classList.toggle('expanded')">
                     <i class="fas fa-keyboard"></i>
                 </button>
@@ -3444,14 +3450,14 @@
         </div>
 
         <div class="view-tabs">
-            <button class="view-tab" data-view="all-tasks" onclick="todoApp.switchView('all-tasks')">
-                <i class="fas fa-list"></i>
-                <span data-i18n="views.all_tasks">All Tasks</span>
-            </button>
             <button class="view-tab active" data-view="today" onclick="todoApp.switchView('today')">
                 <i class="fas fa-calendar-day"></i>
                 <span data-i18n="views.today">Today</span>
                 <span class="today-badge" id="today-badge">0</span>
+            </button>
+            <button class="view-tab" data-view="all-tasks" onclick="todoApp.switchView('all-tasks')">
+                <i class="fas fa-list"></i>
+                <span data-i18n="views.all_tasks">All Tasks</span>
             </button>
             <button class="view-tab" data-view="archive" onclick="todoApp.switchView('archive')">
                 <i class="fas fa-archive"></i>
@@ -3464,25 +3470,6 @@
         </div>
 
         <div class="main-content">
-            <div class="stats-bar">
-                <div class="stat-item">
-                    <span class="stat-number" id="total-todos">0</span>
-                    <span class="stat-label" data-i18n="stats.total">Total</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number" id="completed-todos">0</span>
-                    <span class="stat-label" data-i18n="stats.completed">Completed</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number" id="pending-todos">0</span>
-                    <span class="stat-label" data-i18n="stats.pending">Pending</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number" id="completion-rate">0%</span>
-                    <span class="stat-label" data-i18n="stats.progress">Progress</span>
-                </div>
-            </div>
-
             <div class="folders-section">
                 <div class="folders-header">
                     <h3 data-i18n="folders.title">Folders</h3>
@@ -3733,8 +3720,8 @@
                 title: "TaskMaster",
                 subtitle: "Manage your tasks efficiently and organized",
                 views: {
-                    all_tasks: "All Tasks",
                     today: "Today",
+                    all_tasks: "All Tasks",
                     archive: "Archive",
                     notes: "Notes"
                 },
@@ -3772,7 +3759,8 @@
                     new_task: "New Task",
                     navigate: "Navigate",
                     complete: "Complete",
-                    delete: "Delete"
+                    delete: "Delete",
+                    switch_view: "Switch View"
                 },
                 archive: {
                     title: "Archived Tasks",
@@ -3878,8 +3866,8 @@
                 title: "المهندس",
                 // subtitle: "إدارة مهامك بكفاءة وتنظيم",
                 views: {
-                    all_tasks: "جميع المهام",
                     today: "اليوم",
+                    all_tasks: "جميع المهام",
                     archive: "الأرشيف",
                     notes: "سكربتات"
                 },
@@ -3917,7 +3905,8 @@
                     new_task: "مهمة جديدة",
                     navigate: "تنقل",
                     complete: "إكمال",
-                    delete: "حذف"
+                    delete: "حذف",
+                    switch_view: "تبديل العرض"
                 },
                 archive: {
                     title: "المهام المؤرشفة",
@@ -4177,6 +4166,20 @@
                     if (e.ctrlKey && e.code === 'KeyR') {
                         e.preventDefault();
                         this.refreshCurrentView();
+                        return;
+                    }
+
+                    // ============ Ctrl+Tab - Cycle through views ============
+                    if (e.ctrlKey && e.code === 'Tab') {
+                        e.preventDefault();
+                        const views = ['today', 'all-tasks', 'archive', 'notes'];
+                        const currentIndex = views.indexOf(this.currentView);
+                        if (currentIndex !== -1) {
+                            const nextIndex = e.shiftKey
+                                ? (currentIndex - 1 + views.length) % views.length
+                                : (currentIndex + 1) % views.length;
+                            this.switchView(views[nextIndex]);
+                        }
                         return;
                     }
 
