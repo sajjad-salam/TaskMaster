@@ -2883,6 +2883,9 @@
                     // Filter out tasks that are already in Today
                     const suggestedTasks = allTasks.filter(t => !t.added_to_today && !t.completed && !t.archived);
                     this.renderSuggestedTasks(suggestedTasks);
+
+                    // Update daily progress bar AFTER allTodayTasks is loaded
+                    this.updateDailyProgress(allTodayTasks);
                 } catch (error) {
                     this.showNotification('Error loading Today tasks', 'error');
                 }
@@ -2995,8 +2998,7 @@
                 // Setup drag and drop
                 this.setupKanbanDragDrop();
 
-                // Update daily progress bar
-                this.updateDailyProgress(todos);
+                // Note: updateDailyProgress is called after allTodayTasks is loaded in loadTodayTodos
             }
 
             updateDailyProgress(todos) {
