@@ -688,16 +688,34 @@ def get_today_todos():
     conn = sqlite3.connect('todos.db')
     cursor = conn.cursor()
 
-    query = """
-        SELECT t.id, t.title, t.description, t.completed, t.priority,
-               t.category, t.folder_id, t.created_at, t.updated_at,
-               f.name as folder_name, f.color as folder_color,
-               t.kanban_status, t.added_to_today, t.today_date, t.archived
-        FROM todos t
-        LEFT JOIN folders f ON t.folder_id = f.id
-        WHERE t.added_to_today = 1 AND t.archived = 0
-        ORDER BY t.today_date DESC, t.created_at DESC
-    """
+    # Check if we should include completed/archived tasks
+    include_completed = request.args.get('include_completed', 'false').lower() == 'true'
+
+    # Build query based on include_completed flag
+    if include_completed:
+        # Get ALL tasks added to today (including done/archived)
+        query = """
+            SELECT t.id, t.title, t.description, t.completed, t.priority,
+                   t.category, t.folder_id, t.created_at, t.updated_at,
+                   f.name as folder_name, f.color as folder_color,
+                   t.kanban_status, t.added_to_today, t.today_date, t.archived
+            FROM todos t
+            LEFT JOIN folders f ON t.folder_id = f.id
+            WHERE t.added_to_today = 1
+            ORDER BY t.today_date DESC, t.created_at DESC
+        """
+    else:
+        # Get only active tasks (not archived)
+        query = """
+            SELECT t.id, t.title, t.description, t.completed, t.priority,
+                   t.category, t.folder_id, t.created_at, t.updated_at,
+                   f.name as folder_name, f.color as folder_color,
+                   t.kanban_status, t.added_to_today, t.today_date, t.archived
+            FROM todos t
+            LEFT JOIN folders f ON t.folder_id = f.id
+            WHERE t.added_to_today = 1 AND t.archived = 0
+            ORDER BY t.today_date DESC, t.created_at DESC
+        """
 
     cursor.execute(query)
     todos = cursor.fetchall()

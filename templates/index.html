@@ -1193,6 +1193,113 @@
             align-items: start;
         }
 
+        /* Daily Progress Bar */
+        .daily-progress-section {
+            grid-column: 1 / -1;
+            margin-bottom: 16px;
+            padding: 16px 20px;
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .daily-progress-section.completed {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border-color: rgba(16, 185, 129, 0.3);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+            animation: celebrateCompletion 0.6s ease;
+        }
+
+        @keyframes celebrateCompletion {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .daily-progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .daily-progress-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .daily-progress-title .icon {
+            font-size: 1.1rem;
+        }
+
+        .daily-progress-section.completed .daily-progress-title .icon {
+            animation: bounce 0.6s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .daily-progress-stats {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .daily-progress-section.completed .daily-progress-stats {
+            color: var(--success-color);
+        }
+
+        .progress-bar-container {
+            height: 12px;
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-color) 0%, #8b5cf6 100%);
+            border-radius: 10px;
+            transition: width 0.5s ease, background 0.3s ease;
+            position: relative;
+            min-width: 0;
+        }
+
+        .progress-bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .daily-progress-section.completed .progress-bar-fill {
+            background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+        }
+
+        .daily-progress-empty {
+            text-align: center;
+            padding: 12px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
         .suggested-tasks-section {
             grid-column: 1 / -1;
             margin-bottom: 8px;
@@ -1288,6 +1395,50 @@
             min-height: 400px;
             overflow: visible;
             position: relative;
+        }
+
+        /* Success flash animation for Done column */
+        .kanban-column[data-status="done"].task-complete-flash {
+            animation: successFlash 0.4s ease-out;
+        }
+
+        @keyframes successFlash {
+            0% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+            30% {
+                box-shadow: 0 0 30px 10px rgba(16, 185, 129, 0.4);
+                border-color: rgba(16, 185, 129, 0.8);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+
+        /* Confetti burst effect */
+        .confetti-burst {
+            position: absolute;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .confetti-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            animation: confettiFall 0.6s ease-out forwards;
+        }
+
+        @keyframes confettiFall {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--tx), 40px) rotate(360deg);
+            }
         }
 
         .kanban-header {
@@ -1457,6 +1608,27 @@
             color: var(--text-secondary);
         }
 
+        .archive-date-header {
+            background: var(--bg-primary);
+            border-bottom: 2px solid var(--border-color);
+            padding: 12px 16px;
+            margin: 24px 0 12px 0;
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .archive-date-header:first-of-type {
+            margin-top: 0;
+        }
+
+        .archive-date-header i {
+            color: var(--primary-color);
+        }
+
         /* Notes Styles */
         .notes-container {
             padding: 24px;
@@ -1540,6 +1712,10 @@
             gap: 8px;
         }
 
+        .note-buttons-vertical {
+            flex-direction: column;
+        }
+
         .note-btn {
             padding: 6px 12px;
             font-size: 0.85rem;
@@ -1553,12 +1729,12 @@
         }
 
         .note-btn-copy {
-            background: var(--primary-color);
+            background: #f97316;
             color: white;
         }
 
         .note-btn-copy:hover {
-            opacity: 0.9;
+            background: #ea580c;
         }
 
         .note-btn-delete {
@@ -1728,6 +1904,22 @@
 
             <!-- Kanban Board for Today View -->
             <div class="kanban-container" id="kanban-container" style="display: none;">
+                <!-- Daily Progress Bar -->
+                <div class="daily-progress-section" id="daily-progress-section">
+                    <div class="daily-progress-header">
+                        <div class="daily-progress-title">
+                            <i class="fas fa-sun icon" style="color: var(--warning-color);"></i>
+                            <span data-i18n="daily_progress.title">Today's Progress</span>
+                        </div>
+                        <div class="daily-progress-stats" id="daily-progress-stats">
+                            0 / 0
+                        </div>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="daily-progress-bar" style="width: 0%;"></div>
+                    </div>
+                </div>
+
                 <!-- Suggested Tasks Section -->
                 <div class="suggested-tasks-section">
                     <div class="suggested-tasks-header">
@@ -1828,6 +2020,11 @@
 
     <div id="notification-container"></div>
 
+    <!-- Success Sound -->
+    <audio id="success-sound" preload="auto">
+        <source src="/static/Successful.wav" type="audio/wav">
+    </audio>
+
     <!-- Multi-Select Elements -->
     <div class="selection-overlay" id="selection-overlay"></div>
     <div class="selection-box" id="selection-box"></div>
@@ -1886,6 +2083,11 @@
                     add: "Add to Today",
                     remove: "Remove"
                 },
+                daily_progress: {
+                    title: "Today's Progress",
+                    completed: "Day Completed! Great job!",
+                    empty: "No tasks selected for today yet"
+                },
                 suggested: {
                     title: "Suggested Tasks",
                     hint: "Drag tasks to Kanban columns to add them to Today",
@@ -1898,7 +2100,9 @@
                     title: "Archived Tasks",
                     empty: "No archived tasks",
                     empty_message: "Completed tasks will appear here",
-                    unarchive: "Unarchive"
+                    unarchive: "Unarchive",
+                    today: "Today",
+                    yesterday: "Yesterday"
                 },
                 stats: {
                     total: "Total",
@@ -1980,12 +2184,12 @@
                     all_tasks: "جميع المهام",
                     today: "اليوم",
                     archive: "الأرشيف",
-                    notes: "الملاحظات"
+                    notes: "سكربتات"
                 },
                 notes: {
                     title: "ملاحظاتي",
                     add: "إضافة ملاحظة",
-                    placeholder: "اكتب ملاحظتك هنا...",
+                    placeholder: "اكتب سكربت الفيديو هنا...",
                     empty: "لا توجد ملاحظات",
                     empty_message: "أنشئ أول ملاحظة أعلاه",
                     copy: "نسخ",
@@ -2001,6 +2205,11 @@
                     add: "إضافة لليوم",
                     remove: "إزالة"
                 },
+                daily_progress: {
+                    title: "تقدم اليوم",
+                    completed: "أكملت يومك! أحسنت!",
+                    empty: "لم تختر مهام لليوم بعد"
+                },
                 suggested: {
                     title: "مهام مقترحة",
                     hint: "اسحب المهام إلى أعمدة كانبان لإضافتها إلى اليوم",
@@ -2010,7 +2219,9 @@
                     title: "المهام المؤرشفة",
                     empty: "لا توجد مهام مؤرشفة",
                     empty_message: "المهام المكتملة ستظهر هنا",
-                    unarchive: "إلغاء الأرشفة"
+                    unarchive: "إلغاء الأرشفة",
+                    today: "اليوم",
+                    yesterday: "أمس"
                 },
                 stats: {
                     total: "الإجمالي",
@@ -2101,6 +2312,7 @@
                     search: ''
                 };
                 this.quickAddMode = false;
+                this.isSubmitting = false;
                 // Multi-select properties
                 this.selectedTasks = new Set();
                 this.isSelecting = false;
@@ -2131,6 +2343,16 @@
                 };
 
                 titleTextarea.addEventListener('input', autoResize);
+
+                // Handle Enter key to submit the form, Shift+Enter for new line
+                titleTextarea.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        if (titleTextarea.value.trim()) {
+                            this.addTodo();
+                        }
+                    }
+                });
             }
 
             async checkTelegramStatus() {
@@ -2548,6 +2770,7 @@
                 const submitHandler = (e) => {
                     if (e.key === 'Enter' && titleInput.value.trim()) {
                         e.preventDefault();
+                        e.stopPropagation();
                         this.addTodo();
                         this.closeQuickAdd();
                         // Return to previous view
@@ -2648,6 +2871,11 @@
                     const todos = await response.json();
                     this.renderKanban(todos);
                     this.updateTodayBadge(todos.length);
+
+                    // Load ALL Today tasks (including completed/archived) for progress bar
+                    const allTodayResponse = await fetch('/api/todos/today?include_completed=true');
+                    let allTodayTasks = await allTodayResponse.json();
+                    this.allTodayTasks = allTodayTasks; // Store for progress calculation
 
                     // Load suggested tasks (tasks NOT in Today)
                     const suggestedResponse = await fetch('/api/todos?include_archived=false');
@@ -2766,6 +2994,45 @@
 
                 // Setup drag and drop
                 this.setupKanbanDragDrop();
+
+                // Update daily progress bar
+                this.updateDailyProgress(todos);
+            }
+
+            updateDailyProgress(todos) {
+                const progressSection = document.getElementById('daily-progress-section');
+                const progressBar = document.getElementById('daily-progress-bar');
+                const progressStats = document.getElementById('daily-progress-stats');
+
+                // Always show the progress bar
+                progressSection.style.display = 'block';
+                progressSection.classList.remove('completed');
+
+                const t = translations[this.currentLanguage];
+
+                // Use allTodayTasks if available (includes completed tasks)
+                const allTasks = this.allTodayTasks || todos;
+                const totalTodayTasks = allTasks.length;
+                const completedTasks = allTasks.filter(task => task.kanban_status === 'done').length;
+
+                if (totalTodayTasks === 0) {
+                    // No tasks yet - show empty state
+                    progressBar.style.width = '0%';
+                    progressStats.textContent = t.daily_progress.empty || 'No tasks selected for today';
+                    return;
+                }
+
+                const percentage = Math.round((completedTasks / totalTodayTasks) * 100);
+                progressBar.style.width = percentage + '%';
+
+                // Update stats text
+                progressStats.textContent = `${completedTasks} / ${totalTodayTasks} · ${percentage}%`;
+
+                // Handle completion state
+                if (percentage === 100) {
+                    progressSection.classList.add('completed');
+                    progressStats.innerHTML = `<i class="fas fa-check-circle"></i> ${t.daily_progress.completed || 'Today Completed!'}`;
+                }
             }
 
             createKanbanCard(todo) {
@@ -2895,6 +3162,10 @@
                     });
 
                     if (response.ok) {
+                        // Play sound and show effect if task added to Done
+                        if (status === 'done') {
+                            this.playSuccessEffect();
+                        }
                         this.loadTodayTodos();
                         this.loadStats();
                         this.showNotification('Task added to Today', 'success');
@@ -2913,12 +3184,63 @@
                     });
 
                     if (response.ok) {
+                        // Play sound and show effect if task moved to Done
+                        if (status === 'done') {
+                            this.playSuccessEffect();
+                        }
                         this.loadTodayTodos();
                         this.loadStats();
                         this.showNotification('Task status updated', 'success');
                     }
                 } catch (error) {
                     this.showNotification('Error updating status', 'error');
+                }
+            }
+
+            playSuccessEffect() {
+                // Play success sound
+                const sound = document.getElementById('success-sound');
+                if (sound) {
+                    sound.currentTime = 0;
+                    sound.play().catch(() => {}); // Ignore autoplay errors
+                }
+
+                // Visual flash on Done column
+                const doneColumn = document.querySelector('.kanban-column[data-status="done"]');
+                if (doneColumn) {
+                    doneColumn.classList.remove('task-complete-flash');
+                    void doneColumn.offsetWidth; // Trigger reflow
+                    doneColumn.classList.add('task-complete-flash');
+                }
+
+                // Create confetti burst
+                this.createConfettiBurst();
+            }
+
+            createConfettiBurst() {
+                const doneColumn = document.querySelector('.kanban-column[data-status="done"]');
+                if (!doneColumn) return;
+
+                const rect = doneColumn.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + 50;
+
+                const colors = ['#10b981', '#34d399', '#6ee7b7', '#fbbf24', '#f472b6'];
+
+                for (let i = 0; i < 12; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'confetti-particle';
+                    particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    particle.style.left = centerX + 'px';
+                    particle.style.top = centerY + 'px';
+
+                    const angle = (i / 12) * Math.PI * 2;
+                    const distance = 30 + Math.random() * 20;
+                    particle.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+
+                    document.body.appendChild(particle);
+
+                    setTimeout(() => particle.remove(), 600);
                 }
             }
 
@@ -2937,30 +3259,60 @@
                     return;
                 }
 
+                // Group tasks by date
+                const groupedTasks = {};
+                todos.forEach(todo => {
+                    const dateKey = new Date(todo.updated_at).toDateString();
+                    if (!groupedTasks[dateKey]) {
+                        groupedTasks[dateKey] = {
+                            dateLabel: this.getArchiveDateLabel(todo.updated_at),
+                            tasks: []
+                        };
+                    }
+                    groupedTasks[dateKey].tasks.push(todo);
+                });
+
+                // Build HTML with date headers
                 let html = '<div class="archive-header"><h2><i class="fas fa-archive"></i> <span data-i18n="archive.title">Archived Tasks</span></h2></div>';
 
-                todos.forEach(todo => {
-                    html += `
-                        <div class="archive-item">
-                            <div class="archive-item-header">
-                                <div class="archive-item-title">${this.escapeHtml(todo.title)}</div>
-                                <div class="archive-item-actions">
-                                    <button class="btn btn-sm btn-success" onclick="todoApp.unarchiveTodo(${todo.id})">
-                                        <i class="fas fa-undo"></i> <span data-i18n="archive.unarchive">Unarchive</span>
-                                    </button>
-                                    <button class="btn btn-sm btn-danger" onclick="todoApp.deleteTodo(${todo.id})">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                // Sort dates (newest first) and render each group
+                Object.keys(groupedTasks)
+                    .sort((a, b) => new Date(b) - new Date(a))
+                    .forEach(dateKey => {
+                        const group = groupedTasks[dateKey];
+
+                        // Date header
+                        html += `
+                            <div class="archive-date-header">
+                                <i class="fas fa-calendar-day"></i>
+                                ${group.dateLabel}
+                            </div>
+                        `;
+
+                        // Tasks for this date
+                        group.tasks.forEach(todo => {
+                            html += `
+                                <div class="archive-item">
+                                    <div class="archive-item-header">
+                                        <div class="archive-item-title">${this.escapeHtml(todo.title)}</div>
+                                        <div class="archive-item-actions">
+                                            <button class="btn btn-sm btn-success" onclick="todoApp.unarchiveTodo(${todo.id})">
+                                                <i class="fas fa-undo"></i> <span data-i18n="archive.unarchive">Unarchive</span>
+                                            </button>
+                                            <button class="btn btn-sm btn-danger" onclick="todoApp.deleteTodo(${todo.id})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    ${todo.description ? `<div style="color: var(--text-secondary); margin: 8px 0;">${this.escapeHtml(todo.description)}</div>` : ''}
+                                    <div class="archive-item-meta">
+                                        <span><i class="fas fa-folder"></i> ${todo.folder_name}</span>
+                                        <span><i class="fas fa-clock"></i> ${this.formatDate(todo.updated_at)}</span>
+                                    </div>
                                 </div>
-                            </div>
-                            ${todo.description ? `<div style="color: var(--text-secondary); margin: 8px 0;">${this.escapeHtml(todo.description)}</div>` : ''}
-                            <div class="archive-item-meta">
-                                <span><i class="fas fa-folder"></i> ${todo.folder_name}</span>
-                                <span><i class="fas fa-clock"></i> ${this.formatDate(todo.updated_at)}</span>
-                            </div>
-                        </div>
-                    `;
-                });
+                            `;
+                        });
+                    });
 
                 container.innerHTML = html;
                 this.updateDynamicTranslations();
@@ -3434,16 +3786,24 @@
             }
 
             async addTodo() {
+                // Prevent duplicate submissions
+                if (this.isSubmitting) return;
+                this.isSubmitting = true;
+
                 const title = document.getElementById('todo-title').value.trim();
                 const description = document.getElementById('todo-description').value.trim();
                 const priority = document.getElementById('todo-priority').value;
                 const category = document.getElementById('todo-category').value;
                 const folderId = document.getElementById('todo-folder').value;
 
-                if (!title) return;
+                if (!title) {
+                    this.isSubmitting = false;
+                    return;
+                }
 
                 // Validar que existan carpetas
                 if (this.folders.length === 0) {
+                    this.isSubmitting = false;
                     this.showNotification(translations[this.currentLanguage].errors.no_folders, 'error');
                     return;
                 }
@@ -3491,6 +3851,9 @@
                     }
                 } catch (error) {
                     this.showNotification('Error adding task', 'error');
+                } finally {
+                    // Reset submission guard
+                    this.isSubmitting = false;
                 }
             }
 
@@ -3543,7 +3906,12 @@
                     });
 
                     if (response.ok) {
-                        this.loadTodos();
+                        // Refresh the appropriate view based on current view
+                        if (this.currentView === 'archive') {
+                            this.loadArchivedTodos();
+                        } else {
+                            this.loadTodos();
+                        }
                         this.loadStats();
                         this.loadFolders();
                         this.showNotification('Task deleted successfully', 'success');
@@ -3587,14 +3955,14 @@
                         <div class="note-content">${this.escapeHtml(note.content)}</div>
                         <div class="note-actions">
                             <span class="note-date">${this.formatDate(note.created_at)}</span>
-                            <div class="note-buttons">
-                                <button class="note-btn note-btn-copy" onclick="todoApp.copyNote(${note.id}, this)" data-note-content="${this.escapeHtml(note.content).replace(/"/g, '&quot;')}">
-                                    <i class="fas fa-copy"></i>
-                                    <span data-i18n="notes.copy">Copy</span>
-                                </button>
+                            <div class="note-buttons note-buttons-vertical">
                                 <button class="note-btn note-btn-delete" onclick="todoApp.deleteNote(${note.id})">
                                     <i class="fas fa-trash"></i>
                                     <span data-i18n="notes.delete">Delete</span>
+                                </button>
+                                <button class="note-btn note-btn-copy" onclick="todoApp.copyNote(${note.id})">
+                                    <i class="fas fa-copy"></i>
+                                    <span data-i18n="notes.copy">Copy</span>
                                 </button>
                             </div>
                         </div>
@@ -3650,8 +4018,15 @@
             }
 
             async copyNote(id, button) {
-                // Get note content from data attribute
-                const content = button.getAttribute('data-note-content');
+                // Get the button that was clicked (event target)
+                if (!button) {
+                    button = event.currentTarget;
+                }
+
+                // Get note content from the DOM - the note-content div contains the actual text
+                const noteCard = button.closest('.note-card');
+                const contentDiv = noteCard.querySelector('.note-content');
+                const content = contentDiv.textContent || contentDiv.innerText;
 
                 if (!content) {
                     this.showNotification('Error copying note', 'error');
@@ -3831,6 +4206,35 @@
                     hour: '2-digit',
                     minute: '2-digit'
                 });
+            }
+
+            getArchiveDateLabel(dateString) {
+                const date = new Date(dateString);
+                const today = new Date();
+                const yesterday = new Date(today);
+                yesterday.setDate(yesterday.getDate() - 1);
+
+                // Reset time to compare dates only
+                const compareDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                const compareToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                const compareYesterday = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
+
+                if (compareDate.getTime() === compareToday.getTime()) {
+                    return translations[this.currentLanguage]?.archive?.today || 'Today';
+                } else if (compareDate.getTime() === compareYesterday.getTime()) {
+                    return translations[this.currentLanguage]?.archive?.yesterday || 'Yesterday';
+                } else {
+                    const localeMap = {
+                        'en': 'en-US',
+                        'ar': 'ar-SA',
+                        'es': 'es-ES'
+                    };
+                    return date.toLocaleDateString(localeMap[this.currentLanguage] || 'en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                }
             }
 
             showNotification(message, type = 'info') {

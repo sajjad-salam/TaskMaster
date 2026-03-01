@@ -1,0 +1,78 @@
+========================================
+TaskMaster Build Guide
+دليل بناء برنامج TaskMaster
+========================================
+
+QUICK BUILD
+-----------
+Double-click: build.bat
+أو انقر مرتين على: build.bat
+
+
+MANUAL BUILD STEPS
+------------------
+
+1. Build with PyInstaller (One-Folder Mode)
+   البناء بـ PyInstaller
+
+   pyinstaller --clean TaskMaster.spec --noconfirm
+
+   Output: dist\TaskMaster\
+
+
+2. Create Installer with Inno Setup
+   إنشاء المثبت بـ Inno Setup
+
+   Right-click on TaskMaster_setup.iss
+   Select "Compile"
+   OR run from command line:
+   ISCC.exe TaskMaster_setup.iss
+
+   Output: installer_output\TaskMaster_Setup_1.0.0.exe
+
+
+FILE STRUCTURE
+--------------
+After building:
+dist/
+└── TaskMaster/
+    ├── TaskMaster.exe          (Main executable)
+    ├── templates/              (HTML files)
+    ├── mainfont.ttf            (Font)
+    ├── telegram_config.json    (Telegram config)
+    ├── todos.db                (Database - created on first run)
+    └── [Python DLLs and libs]  (Required files)
+
+
+INSTALLER FEATURES
+------------------
+✓ Installation to Program Files
+✓ Desktop shortcut (optional)
+✓ Quick Launch shortcut (optional)
+✓ Start Menu entry
+✓ Uninstaller
+✓ Arabic & English language support
+✓ Check if app is running before install/uninstall
+
+
+BENEFITS OF ONE-FOLDER MODE
+---------------------------
+✓ Faster startup (no unpacking)
+✓ Faster app loading
+✓ Easier debugging
+✓ Can update individual files
+✓ Smaller memory footprint
+
+
+TROUBLESHOOTING
+---------------
+
+Q: PyInstaller fails
+A: Make sure all dependencies are installed:
+   pip install pyinstaller flask pywebview pywebview[winforms]
+
+Q: Inno Setup not found
+A: Install from: https://jrsoftware.org/isdl.php
+
+Q: App crashes on startup
+A: Check if all required files are in the same folder as the exe
