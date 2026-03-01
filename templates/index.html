@@ -206,6 +206,60 @@
             display: none;
         }
 
+        /* Keyboard shortcuts hint */
+        .keyboard-shortcuts-hint {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 12px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            flex-wrap: wrap;
+        }
+
+        .shortcut-hint {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .shortcut-hint kbd {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: inherit;
+            font-size: 0.7rem;
+            font-weight: 500;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .shortcuts-toggle {
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            padding: 4px;
+            font-size: 0.8rem;
+            opacity: 0.6;
+            transition: opacity 0.15s ease;
+        }
+
+        .shortcuts-toggle:hover {
+            opacity: 1;
+        }
+
+        /* RTL support for keyboard shortcuts */
+        body[data-lang="ar"] .keyboard-shortcuts-hint {
+            flex-direction: row;
+        }
+
+        body[data-lang="ar"] .shortcut-hint {
+            flex-direction: row;
+        }
+
         .main-content {
             background: var(--bg-secondary);
             border-radius: var(--radius-lg);
@@ -512,6 +566,7 @@
             border-radius: var(--radius-md);
             padding: 16px;
             margin-bottom: 12px;
+            cursor: grab;
             transition: all 0.15s ease;
             position: relative;
         }
@@ -956,6 +1011,23 @@
             font-weight: 900;
             color: white;
             font-size: 12px;
+        }
+
+        /* Keyboard focused task styling */
+        .todo-item.keyboard-focused,
+        .kanban-card.keyboard-focused,
+        .suggested-task-card.keyboard-focused {
+            outline: 2px solid var(--accent-color);
+            outline-offset: 2px;
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.15);
+            z-index: 10;
+        }
+
+        .todo-item.keyboard-focused .todo-checkbox-wrapper,
+        .kanban-card.keyboard-focused .todo-checkbox-wrapper,
+        .suggested-task-card.keyboard-focused .todo-checkbox-wrapper {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.3);
         }
 
         /* Adjust todo item padding for checkbox */
@@ -1498,6 +1570,19 @@
             cursor: grabbing;
         }
 
+        .todo-item.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+            transform: scale(1.02);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+        }
+
+        .todo-item.drag-over {
+            border-top: 3px solid var(--accent-color);
+            margin-top: -3px;
+        }
+
         .kanban-column.drag-over .kanban-cards {
             background: var(--bg-primary);
         }
@@ -1757,9 +1842,1589 @@
             margin-bottom: 16px;
             opacity: 0.4;
         }
+
+        /* ============ MICRO-INTERACTIONS ============ */
+
+        /* 1. Satisfying Checkbox Animation - Burst + Scale Effect */
+        .checkbox-burst {
+            position: absolute;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .burst-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: burstExplode 0.6s ease-out forwards;
+        }
+
+        @keyframes burstExplode {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--tx), var(--ty)) scale(0);
+            }
+        }
+
+        /* Checkmark scale animation */
+        .checkmark-scale {
+            animation: checkmarkPop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes checkmarkPop {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        /* Completion ripple effect on todo item */
+        .todo-item.completing {
+            animation: completionPulse 0.5s ease-out;
+        }
+
+        @keyframes completionPulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.7);
+            }
+            50% {
+                transform: scale(1.02);
+                box-shadow: 0 0 20px 5px rgba(52, 199, 89, 0.3);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(52, 199, 89, 0);
+            }
+        }
+
+        /* 2. Button Ripple Effects */
+        .btn {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0);
+            animation: rippleEffect 0.6s ease-out;
+            pointer-events: none;
+        }
+
+        .btn-primary .ripple {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .btn-secondary .ripple {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-danger .ripple {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-success .ripple {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes rippleEffect {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* 3. Card Hover Micro-bounce */
+        .todo-item {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .todo-item:hover {
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .folder-card {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .folder-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .kanban-card {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .kanban-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .suggested-task-card {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .suggested-task-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        /* 4. Progress Bar Fill Animation - Enhanced */
+        .progress-bar-fill {
+            transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        background 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                transparent,
+                rgba(255, 255, 255, 0.4),
+                transparent);
+            animation: progressSweep 1.5s ease-in-out infinite;
+        }
+
+        @keyframes progressSweep {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .progress-bar-fill.updating {
+            animation: progressPulse 0.3s ease-out;
+        }
+
+        @keyframes progressPulse {
+            0% { filter: brightness(1); }
+            50% { filter: brightness(1.2); }
+            100% { filter: brightness(1); }
+        }
+
+        /* 5. Number Counter Animation */
+        .stat-number {
+            transition: all 0.3s ease;
+        }
+
+        .stat-number.counting {
+            animation: numberPop 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes numberPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); color: var(--accent-color); }
+            100% { transform: scale(1); }
+        }
+
+        .stat-number.increase {
+            animation: countUp 0.5s ease-out;
+        }
+
+        .stat-number.decrease {
+            animation: countDown 0.5s ease-out;
+        }
+
+        @keyframes countUp {
+            0% {
+                transform: translateY(0);
+                color: var(--text-primary);
+            }
+            50% {
+                transform: translateY(-10px);
+                color: var(--success-color);
+            }
+            100% {
+                transform: translateY(0);
+                color: var(--text-primary);
+            }
+        }
+
+        @keyframes countDown {
+            0% {
+                transform: translateY(0);
+                color: var(--text-primary);
+            }
+            50% {
+                transform: translateY(10px);
+                color: var(--warning-color);
+            }
+            100% {
+                transform: translateY(0);
+                color: var(--text-primary);
+            }
+        }
+
+        /* Shake animation for decrease (pending tasks increase) */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .stat-number.shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        /* Folder card bounce on selection */
+        .folder-card.selecting {
+            animation: folderBounce 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes folderBounce {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Success celebration for task completion */
+        .success-stars {
+            position: absolute;
+            pointer-events: none;
+            z-index: 1001;
+        }
+
+        .star-particle {
+            position: absolute;
+            font-size: 20px;
+            animation: starFloat 0.8s ease-out forwards;
+        }
+
+        @keyframes starFloat {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) rotate(0deg) scale(0);
+            }
+            50% {
+                opacity: 1;
+                transform: translate(var(--tx), var(--ty)) rotate(180deg) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--tx2), var(--ty2)) rotate(360deg) scale(0);
+            }
+        }
+
+        /* Button press effect */
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .view-tab:active {
+            transform: scale(0.97);
+        }
+
+        /* Loading skeleton animation for stat updates */
+        .stat-number.loading {
+            background: linear-gradient(90deg,
+                var(--bg-tertiary) 25%,
+                var(--border-color-light) 50%,
+                var(--bg-tertiary) 75%);
+            background-size: 200% 100%;
+            animation: skeletonShimmer 1s infinite;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent !important;
+        }
+
+        @keyframes skeletonShimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Enhanced today badge animation */
+        .today-badge {
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .today-badge.updated {
+            animation: badgePop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes badgePop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.5); }
+            100% { transform: scale(1); }
+        }
+
+        /* Smooth fade for todo item removal */
+        .todo-item.removing {
+            animation: slideOut 0.3s ease-out forwards;
+        }
+
+        @keyframes slideOut {
+            to {
+                opacity: 0;
+                transform: translateX(100%);
+                height: 0;
+                margin: 0;
+                padding: 0;
+            }
+        }
+
+        /* Todo item addition animation */
+        .todo-item.adding {
+            animation: slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* ========================================
+           SMOOTH TRANSITIONS
+           ======================================== */
+
+        /* 1. View Switch Animation - Smooth slide/fade between views */
+        .todos-container,
+        .kanban-container,
+        .archive-container,
+        .notes-container {
+            transition: opacity 0.3s ease, transform 0.3s ease, filter 0.3s ease;
+        }
+
+        .todos-container.fade-out,
+        .kanban-container.fade-out,
+        .archive-container.fade-out,
+        .notes-container.fade-out {
+            opacity: 0;
+            transform: translateY(10px);
+            filter: blur(2px);
+            pointer-events: none;
+        }
+
+        .todos-container.fade-in,
+        .kanban-container.fade-in,
+        .archive-container.fade-in,
+        .notes-container.fade-in {
+            animation: viewFadeIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes viewFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-15px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* View tab indicator animation */
+        .view-tab {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .view-tab::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--accent-color);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform: translateX(-50%);
+        }
+
+        .view-tab.active::after {
+            width: 80%;
+        }
+
+        /* 2. Task Reorder Animation */
+        .todo-item.reordering {
+            animation: taskReorder 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes taskReorder {
+            0% { transform: translateY(0) scale(1); }
+            25% { transform: translateY(-5px) scale(1.02); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); }
+            50% { transform: translateY(2px) scale(0.98); }
+            75% { transform: translateY(-1px) scale(1.01); }
+            100% { transform: translateY(0) scale(1); }
+        }
+
+        .kanban-card.reordering {
+            animation: kanbanReorder 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes kanbanReorder {
+            0% { transform: scale(1); }
+            30% { transform: scale(1.03); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12); }
+            60% { transform: scale(0.98); }
+            100% { transform: scale(1); }
+        }
+
+        .kanban-card.dragging {
+            animation: dragLift 0.3s ease forwards;
+        }
+
+        @keyframes dragLift {
+            to {
+                opacity: 0.8;
+                transform: scale(1.05) rotate(2deg);
+                box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            }
+        }
+
+        /* 3. Filter Transition */
+        .todo-item.filtering-out {
+            animation: filterSlideOut 0.3s ease-out forwards;
+        }
+
+        .todo-item.filtering-in {
+            animation: filterSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes filterSlideOut {
+            to {
+                opacity: 0;
+                transform: translateX(-30px) scale(0.9);
+                height: 0;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+        }
+
+        @keyframes filterSlideIn {
+            0% { opacity: 0; transform: translateX(30px) scale(0.9); }
+            60% { transform: translateX(-5px) scale(1.02); }
+            100% { opacity: 1; transform: translateX(0) scale(1); }
+        }
+
+        .todo-item.stagger-1 { animation-delay: 0.05s; }
+        .todo-item.stagger-2 { animation-delay: 0.1s; }
+        .todo-item.stagger-3 { animation-delay: 0.15s; }
+        .todo-item.stagger-4 { animation-delay: 0.2s; }
+        .todo-item.stagger-5 { animation-delay: 0.25s; }
+
+        .folder-card.filtering-out {
+            animation: folderFilterOut 0.3s ease-out forwards;
+        }
+
+        .folder-card.filtering-in {
+            animation: folderFilterIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes folderFilterOut {
+            to { opacity: 0; transform: scale(0.8); height: 0; margin: 0; padding: 0; overflow: hidden; }
+        }
+
+        @keyframes folderFilterIn {
+            0% { opacity: 0; transform: scale(0.8); }
+            60% { transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* 4. Modal Backdrop Blur */
+        .modal {
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: opacity 0.3s ease, backdrop-filter 0.3s ease;
+        }
+
+        .modal.showing {
+            animation: modalBackdropFadeIn 0.3s ease forwards;
+        }
+
+        .modal.hiding {
+            animation: modalBackdropFadeOut 0.2s ease forwards;
+        }
+
+        @keyframes modalBackdropFadeIn {
+            from {
+                opacity: 0;
+                backdrop-filter: blur(0px);
+                -webkit-backdrop-filter: blur(0px);
+            }
+            to {
+                opacity: 1;
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+            }
+        }
+
+        @keyframes modalBackdropFadeOut {
+            from {
+                opacity: 1;
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+            }
+            to {
+                opacity: 0;
+                backdrop-filter: blur(0px);
+                -webkit-backdrop-filter: blur(0px);
+            }
+        }
+
+        .modal.showing .modal-content {
+            animation: modalContentSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        .modal.hiding .modal-content {
+            animation: modalContentSlideOut 0.2s ease forwards;
+        }
+
+        @keyframes modalContentSlideIn {
+            from { opacity: 0; transform: translateY(-30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes modalContentSlideOut {
+            to { opacity: 0; transform: translateY(-20px) scale(0.95); }
+        }
+
+        /* 5. Folder Switch Animation */
+        .folder-card.switching-out {
+            animation: folderSwitchOut 0.3s ease forwards;
+        }
+
+        .folder-card.switching-in {
+            animation: folderSwitchIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes folderSwitchOut {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.5; }
+        }
+
+        @keyframes folderSwitchIn {
+            0% { transform: scale(0.95); opacity: 0; }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .folder-card.active {
+            animation: folderActivePulse 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes folderActivePulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 113, 227, 0); }
+            50% { box-shadow: 0 0 0 8px rgba(0, 113, 227, 0.15); }
+            100% { box-shadow: 0 4px 12px rgba(0, 113, 227, 0.2); }
+        }
+
+        .folder-count.updating {
+            animation: countPulse 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes countPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        .todos-container.filter-transition .todo-item {
+            animation-delay: calc(var(--item-index, 0) * 0.05s);
+        }
+
+        .main-content {
+            transition: height 0.3s ease;
+        }
+
+        /* ========================================
+           VISUAL POLISH FEATURES
+           ======================================== */
+
+        /* 1. LOADING SKELETONS */
+        .skeleton {
+            background: linear-gradient(90deg,
+                var(--bg-tertiary) 25%,
+                var(--border-color-light) 50%,
+                var(--bg-tertiary) 75%);
+            background-size: 200% 100%;
+            animation: skeletonShimmer 1.5s infinite;
+            border-radius: var(--radius-sm);
+            color: transparent !important;
+            pointer-events: none;
+        }
+
+        .skeleton-text {
+            height: 1em;
+            margin: 0.5em 0;
+            border-radius: 4px;
+        }
+
+        .skeleton-text.short { width: 60%; }
+        .skeleton-text.medium { width: 80%; }
+        .skeleton-text.long { width: 100%; }
+
+        .skeleton-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .skeleton-card .skeleton-title {
+            height: 20px;
+            width: 70%;
+            margin-bottom: 12px;
+            border-radius: var(--radius-sm);
+        }
+
+        .skeleton-card .skeleton-meta {
+            display: flex;
+            gap: 8px;
+        }
+
+        .skeleton-card .skeleton-badge {
+            height: 24px;
+            width: 60px;
+            border-radius: var(--radius-sm);
+        }
+
+        .skeleton-folder {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .skeleton-folder-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-bottom: 8px;
+        }
+
+        .skeleton-folder-name {
+            width: 80%;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .skeleton-stat {
+            width: 100%;
+            text-align: center;
+        }
+
+        .skeleton-stat-number {
+            height: 32px;
+            width: 60px;
+            margin: 0 auto 8px;
+            border-radius: var(--radius-sm);
+        }
+
+        .skeleton-stat-label {
+            height: 14px;
+            width: 80%;
+            margin: 0 auto;
+            border-radius: 4px;
+        }
+
+        @keyframes skeletonShimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* 2. EMPTY STATE ANIMATION */
+        .empty-state-animated {
+            text-align: center;
+            padding: 80px 40px;
+            position: relative;
+        }
+
+        .empty-state-illustration {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 32px;
+        }
+
+        .empty-state-illustration::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(0, 113, 227, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: emptyPulse 3s ease-in-out infinite;
+        }
+
+        .empty-state-icon {
+            font-size: 5rem;
+            color: var(--text-tertiary);
+            position: relative;
+            z-index: 1;
+            animation: emptyFloat 4s ease-in-out infinite;
+        }
+
+        .empty-state-icon i {
+            display: block;
+        }
+
+        .empty-state-icon::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            width: 60px;
+            height: 8px;
+            background: radial-gradient(ellipse, rgba(0, 0, 0, 0.1) 0%, transparent 70%);
+            transform: translateX(-50%);
+            animation: emptyShadow 4s ease-in-out infinite;
+        }
+
+        .empty-state-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            animation: emptyFadeIn 0.6s ease-out 0.2s both;
+        }
+
+        .empty-state-message {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            max-width: 400px;
+            margin: 0 auto;
+            animation: emptyFadeIn 0.6s ease-out 0.4s both;
+        }
+
+        .empty-state-decoration {
+            position: absolute;
+            font-size: 1rem;
+            color: var(--accent-color);
+            opacity: 0.3;
+        }
+
+        .empty-state-decoration:nth-child(1) {
+            top: 20%;
+            left: 10%;
+            animation: decorationFloat 5s ease-in-out infinite;
+        }
+
+        .empty-state-decoration:nth-child(2) {
+            top: 30%;
+            right: 15%;
+            animation: decorationFloat 6s ease-in-out infinite 1s;
+        }
+
+        .empty-state-decoration:nth-child(3) {
+            bottom: 25%;
+            left: 15%;
+            animation: decorationFloat 5.5s ease-in-out infinite 2s;
+        }
+
+        .empty-state-decoration:nth-child(4) {
+            bottom: 35%;
+            right: 10%;
+            animation: decorationFloat 6.5s ease-in-out infinite 0.5s;
+        }
+
+        @keyframes emptyPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+            50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; }
+        }
+
+        @keyframes emptyFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes emptyShadow {
+            0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.3; }
+            50% { transform: translateX(-50%) scale(1.2); opacity: 0.15; }
+        }
+
+        @keyframes emptyFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes decorationFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-10px) rotate(5deg); }
+            75% { transform: translateY(5px) rotate(-5deg); }
+        }
+
+        /* 3. ENHANCED TOAST NOTIFICATIONS */
+        .notification {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            color: white;
+            font-weight: 500;
+            font-size: 0.95rem;
+            z-index: 10000;
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 280px;
+            max-width: 400px;
+            backdrop-filter: blur(10px);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.hiding {
+            transform: translateX(120%);
+        }
+
+        .notification-icon {
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .notification-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, var(--success-color) 0%, #28a745 100%);
+        }
+
+        .notification.success .notification-icon::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, var(--danger-color) 0%, #dc3545 100%);
+        }
+
+        .notification.error .notification-icon::before {
+            content: '\f06a';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+        }
+
+        .notification.info {
+            background: linear-gradient(135deg, var(--accent-color) 0%, #0056b3 100%);
+        }
+
+        .notification.info .notification-icon::before {
+            content: '\f05a';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+        }
+
+        .notification.warning {
+            background: linear-gradient(135deg, var(--warning-color) 0%, #fd7e14 100%);
+        }
+
+        .notification.warning .notification-icon::before {
+            content: '\f071';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+        }
+
+        .notification.progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.3);
+            width: 100%;
+            transform-origin: left;
+        }
+
+        .notification.progress-bar .progress-fill {
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            animation: notificationProgress 3s linear forwards;
+        }
+
+        @keyframes notificationProgress {
+            from { transform: scaleX(1); }
+            to { transform: scaleX(0); }
+        }
+
+        /* RTL support for notifications */
+        body[data-lang="ar"] .notification {
+            right: auto;
+            left: 24px;
+            transform: translateX(-120%);
+        }
+
+        body[data-lang="ar"] .notification.show {
+            transform: translateX(0);
+        }
+
+        body[data-lang="ar"] .notification.hiding {
+            transform: translateX(-120%);
+        }
+
+        /* 4. SUBTLE PARTICLE EFFECTS */
+        .particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--accent-color);
+            opacity: 0.03;
+            animation: particleFloat linear infinite;
+        }
+
+        .particle:nth-child(odd) {
+            background: var(--success-color);
+        }
+
+        .particle:nth-child(3n) {
+            background: var(--warning-color);
+        }
+
+        @keyframes particleFloat {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.05;
+            }
+            90% {
+                opacity: 0.05;
+            }
+            100% {
+                transform: translateY(-100px) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* 5. FOCUS GLOW EFFECT */
+        select:focus, input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15),
+                        0 0 20px rgba(0, 113, 227, 0.1);
+        }
+
+        select:focus, input[type="text"]:focus, textarea:focus {
+            animation: focusGlow 0.3s ease-out;
+        }
+
+        @keyframes focusGlow {
+            from {
+                box-shadow: 0 0 0 0 rgba(0, 113, 227, 0.4),
+                            0 0 0 0 rgba(0, 113, 227, 0.2);
+            }
+            to {
+                box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15),
+                            0 0 20px rgba(0, 113, 227, 0.1);
+            }
+        }
+
+        /* Enhanced button focus states */
+        .btn:focus-visible, .view-tab:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.3);
+        }
+
+        .btn-primary:focus {
+            background: var(--accent-hover);
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.3),
+                        0 4px 12px rgba(0, 113, 227, 0.2);
+        }
+
+        .btn-success:focus {
+            box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.3),
+                        0 4px 12px rgba(52, 199, 89, 0.2);
+        }
+
+        .btn-danger:focus {
+            box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.3),
+                        0 4px 12px rgba(255, 59, 48, 0.2);
+        }
+
+        /* Checkbox focus glow */
+        .todo-checkbox:focus-visible + .todo-checkbox-wrapper,
+        .todo-checkbox-wrapper:focus {
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.3);
+        }
+
+        /* ============================================
+           MASCOT CHARACTER
+        ============================================ */
+        .mascot-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        body[data-lang="ar"] .mascot-container {
+            right: auto;
+            left: 24px;
+        }
+
+        .mascot {
+            width: 80px;
+            height: 80px;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .mascot:hover {
+            transform: scale(1.1);
+        }
+
+        .mascot-body {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50% 50% 45% 45%;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            animation: mascotBounce 2s ease-in-out infinite;
+        }
+
+        @keyframes mascotBounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        .mascot-face {
+            position: absolute;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 25px;
+        }
+
+        .mascot-eyes {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .mascot-eye {
+            width: 10px;
+            height: 10px;
+            background: #2d3748;
+            border-radius: 50%;
+            position: relative;
+            animation: mascotBlink 4s infinite;
+        }
+
+        .mascot-eye::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            right: 2px;
+        }
+
+        @keyframes mascotBlink {
+            0%, 96%, 100% { transform: scaleY(1); }
+            98% { transform: scaleY(0.1); }
+        }
+
+        .mascot-mouth {
+            width: 12px;
+            height: 6px;
+            background: #2d3748;
+            border-radius: 0 0 10px 10px;
+            margin: 8px auto 0;
+            transition: all 0.3s ease;
+        }
+
+        /* Mascot emotions */
+        .mascot.happy .mascot-mouth {
+            width: 16px;
+            height: 8px;
+            border-radius: 0 0 16px 16px;
+        }
+
+        .mascot.excited .mascot-body {
+            animation: mascotExcited 0.3s ease-in-out infinite;
+        }
+
+        @keyframes mascotExcited {
+            0%, 100% { transform: translateX(-50%) translateY(0) rotate(-3deg); }
+            50% { transform: translateX(-50%) translateY(-8px) rotate(3deg); }
+        }
+
+        .mascot.excited .mascot-mouth {
+            width: 18px;
+            height: 10px;
+            border-radius: 0 0 18px 18px;
+        }
+
+        .mascot.excited .mascot-eye {
+            animation: none;
+            height: 4px;
+            border-radius: 2px;
+            top: 3px;
+        }
+
+        .mascot.thinking .mascot-body {
+            animation: mascotThinking 1s ease-in-out infinite;
+        }
+
+        @keyframes mascotThinking {
+            0%, 100% { transform: translateX(-50%) rotate(-5deg); }
+            50% { transform: translateX(-50%) rotate(5deg); }
+        }
+
+        .mascot.thinking .mascot-mouth {
+            width: 8px;
+            height: 4px;
+            border-radius: 4px 4px 0 0;
+            margin-top: 10px;
+        }
+
+        .mascot.sleepy .mascot-body {
+            animation: none;
+            transform: translateX(-50%) scale(0.95);
+        }
+
+        .mascot.sleepy .mascot-eye {
+            height: 2px;
+            border-radius: 1px;
+            top: 4px;
+            animation: none;
+        }
+
+        .mascot.sleepy .mascot-mouth {
+            width: 6px;
+            height: 3px;
+        }
+
+        /* Mascot speech bubble */
+        .mascot-speech {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            max-width: 200px;
+            text-align: center;
+            position: relative;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .mascot-speech.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .mascot-speech::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid white;
+        }
+
+        .mascot-toggle {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 28px;
+            height: 28px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+
+        .mascot-toggle:hover {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        .mascot-container.hidden .mascot {
+            transform: scale(0);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .mascot-container.hidden .mascot-toggle {
+            opacity: 0.5;
+        }
+
+        /* Mascot hearts */
+        .mascot-heart {
+            position: absolute;
+            font-size: 20px;
+            pointer-events: none;
+            animation: mascotHeartFloat 1s ease-out forwards;
+            z-index: 1001;
+        }
+
+        @keyframes mascotHeartFloat {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(0);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(-30px) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-60px) scale(0.5);
+            }
+        }
+
+        /* ============================================
+           ENHANCED CELEBRATION ANIMATIONS
+        ============================================ */
+
+        /* Emoji burst container */
+        .emoji-burst-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        /* Floating emoji particle */
+        .emoji-particle {
+            position: absolute;
+            font-size: 24px;
+            pointer-events: none;
+            animation: emojiFloat 1.5s ease-out forwards;
+        }
+
+        @keyframes emojiFloat {
+            0% {
+                opacity: 1;
+                transform: translateY(0) rotate(0deg) scale(0);
+            }
+            20% {
+                opacity: 1;
+                transform: translateY(-20px) rotate(45deg) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-150px) rotate(360deg) scale(0.5);
+            }
+        }
+
+        /* Day complete celebration overlay */
+        .day-complete-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+        }
+
+        .day-complete-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .day-complete-content {
+            text-align: center;
+            color: white;
+            transform: scale(0.5);
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .day-complete-overlay.show .day-complete-content {
+            transform: scale(1);
+        }
+
+        .day-complete-emoji {
+            font-size: 120px;
+            animation: emojiBounce 0.6s ease-out;
+            margin-bottom: 20px;
+        }
+
+        @keyframes emojiBounce {
+            0% { transform: scale(0) rotate(-180deg); }
+            50% { transform: scale(1.2) rotate(10deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .day-complete-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #fbbf24 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .day-complete-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 30px;
+        }
+
+        .day-complete-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+
+        .day-complete-stat {
+            text-align: center;
+        }
+
+        .day-complete-stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #10b981;
+        }
+
+        .day-complete-stat-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .day-complete-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 40px;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .day-complete-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Rainbow confetti */
+        .rainbow-confetti {
+            position: fixed;
+            width: 15px;
+            height: 15px;
+            pointer-events: none;
+            z-index: 10001;
+            opacity: 0;
+        }
+
+        .rainbow-confetti.animate {
+            animation: rainbowFall 3s ease-out forwards;
+        }
+
+        @keyframes rainbowFall {
+            0% {
+                opacity: 1;
+                transform: translateY(-100px) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(100vh) rotate(720deg);
+            }
+        }
+
+        /* Streak counter */
+        .streak-counter {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.2) 0%, rgba(255, 152, 0, 0.2) 100%);
+            border: 2px solid rgba(255, 193, 7, 0.4);
+            border-radius: 20px;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 100;
+            animation: streakPulse 2s ease-in-out infinite;
+        }
+
+        body[data-lang="ar"] .streak-counter {
+            right: auto;
+            left: 24px;
+        }
+
+        @keyframes streakPulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(255, 193, 7, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(255, 193, 7, 0.5); }
+        }
+
+        .streak-fire {
+            font-size: 1.5rem;
+            animation: fireDance 0.5s ease-in-out infinite;
+        }
+
+        @keyframes fireDance {
+            0%, 100% { transform: scale(1) rotate(-5deg); }
+            50% { transform: scale(1.1) rotate(5deg); }
+        }
+
+        .streak-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffc107;
+        }
+
+        .streak-label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
     </style>
 </head>
 <body data-lang="ar">
+    <!-- Particle Background -->
+    <div class="particles-container" id="particles-container"></div>
+
+    <!-- Emoji Burst Container for celebrations -->
+    <div class="emoji-burst-container" id="emoji-burst-container"></div>
+
+    <!-- Streak Counter -->
+    <div class="streak-counter" id="streak-counter" style="display: none;">
+        <span class="streak-fire">🔥</span>
+        <span class="streak-number" id="streak-number">0</span>
+        <span class="streak-label" data-i18n="streak.label">day streak</span>
+    </div>
+
+    <!-- Mascot Character -->
+    <div class="mascot-container" id="mascot-container">
+        <div class="mascot-speech" id="mascot-speech">Hello! Let's be productive! 💪</div>
+        <div class="mascot" id="mascot">
+            <div class="mascot-body">
+                <div class="mascot-face">
+                    <div class="mascot-eyes">
+                        <div class="mascot-eye"></div>
+                        <div class="mascot-eye"></div>
+                    </div>
+                    <div class="mascot-mouth"></div>
+                </div>
+            </div>
+        </div>
+        <button class="mascot-toggle" id="mascot-toggle" title="Toggle mascot">
+            <i class="fas fa-eye"></i>
+        </button>
+    </div>
+
+    <!-- Day Complete Celebration Overlay -->
+    <div class="day-complete-overlay" id="day-complete-overlay">
+        <div class="day-complete-content">
+            <div class="day-complete-emoji">🎉</div>
+            <div class="day-complete-title" data-i18n="day_complete.title">Amazing Work!</div>
+            <div class="day-complete-subtitle" data-i18n="day_complete.subtitle">You completed all your tasks today!</div>
+            <div class="day-complete-stats">
+                <div class="day-complete-stat">
+                    <div class="day-complete-stat-value" id="day-complete-tasks">0</div>
+                    <div class="day-complete-stat-label" data-i18n="day_complete.tasks">Tasks Done</div>
+                </div>
+                <div class="day-complete-stat">
+                    <div class="day-complete-stat-value" id="day-complete-streak">0</div>
+                    <div class="day-complete-stat-label" data-i18n="day_complete.streak">Day Streak</div>
+                </div>
+            </div>
+            <button class="day-complete-btn" id="day-complete-btn" data-i18n="day_complete.button">Keep it up!</button>
+        </div>
+    </div>
+
     <div class="container">
         <div class="header">
             <div class="language-switcher">
@@ -1767,14 +3432,23 @@
                 <button class="language-btn active" data-lang="ar">عربي</button>
             </div>
             <h1><i class="fas fa-tasks"></i> <span data-i18n="title">برنامج المهندس</span></h1>
+            <div class="keyboard-shortcuts-hint" id="keyboard-shortcuts-hint">
+                <span class="shortcut-hint"><kbd>N</kbd> <span data-i18n="shortcuts.new_task">New Task</span></span>
+                <span class="shortcut-hint"><kbd>↑↓</kbd> <span data-i18n="shortcuts.navigate">Navigate</span></span>
+                <span class="shortcut-hint"><kbd>Space</kbd> <span data-i18n="shortcuts.complete">Complete</span></span>
+                <span class="shortcut-hint"><kbd>Del</kbd> <span data-i18n="shortcuts.delete">Delete</span></span>
+                <button class="shortcuts-toggle" onclick="document.getElementById('keyboard-shortcuts-hint').classList.toggle('expanded')">
+                    <i class="fas fa-keyboard"></i>
+                </button>
+            </div>
         </div>
 
         <div class="view-tabs">
-            <button class="view-tab active" data-view="all-tasks" onclick="todoApp.switchView('all-tasks')">
+            <button class="view-tab" data-view="all-tasks" onclick="todoApp.switchView('all-tasks')">
                 <i class="fas fa-list"></i>
                 <span data-i18n="views.all_tasks">All Tasks</span>
             </button>
-            <button class="view-tab" data-view="today" onclick="todoApp.switchView('today')">
+            <button class="view-tab active" data-view="today" onclick="todoApp.switchView('today')">
                 <i class="fas fa-calendar-day"></i>
                 <span data-i18n="views.today">Today</span>
                 <span class="today-badge" id="today-badge">0</span>
@@ -2090,16 +3764,20 @@
                 },
                 suggested: {
                     title: "Suggested Tasks",
-                    hint: "Drag tasks to Kanban columns to add them to Today",
-                    empty: "No suggested tasks available"
+                    hint: "اسحب المهام واضفها الى اليوم في حالة كانت موجودة",
+                    empty: "لايوجد مهام لاقتراحها عليك"
                 },
                 shortcuts: {
-                    hint: "Press <strong>Ctrl+N</strong> to add task • <strong>Ctrl+R</strong> to refresh"
+                    hint: "Press <strong>Ctrl+N</strong> to add task • <strong>Ctrl+R</strong> to refresh",
+                    new_task: "New Task",
+                    navigate: "Navigate",
+                    complete: "Complete",
+                    delete: "Delete"
                 },
                 archive: {
                     title: "Archived Tasks",
-                    empty: "No archived tasks",
-                    empty_message: "Completed tasks will appear here",
+                    empty: "ارشيفك فارغ حاليا",
+                    empty_message: "المهام المكتملة سوف تضهر هنا",
                     unarchive: "Unarchive",
                     today: "Today",
                     yesterday: "Yesterday"
@@ -2175,6 +3853,25 @@
                 },
                 success: {
                     folder_deleted: "Folder and all its tasks deleted successfully"
+                },
+                mascot: {
+                    hello: "Hello! Let's be productive! 💪",
+                    task_complete: "Great job! Task completed! 🎉",
+                    day_start: "Let's make today count! 🌟",
+                    thinking: "What should we focus on? 🤔",
+                    happy: "You're doing amazing! ⭐",
+                    excited: "WOW! Keep it up! 🔥",
+                    sleepy: "Time for a break? ☕"
+                },
+                day_complete: {
+                    title: "Amazing Work!",
+                    subtitle: "You completed all your tasks today!",
+                    tasks: "Tasks Done",
+                    streak: "Day Streak",
+                    button: "Keep it up!"
+                },
+                streak: {
+                    label: "day streak"
                 }
             },
             ar: {
@@ -2214,6 +3911,13 @@
                     title: "مهام مقترحة",
                     hint: "اسحب المهام إلى أعمدة كانبان لإضافتها إلى اليوم",
                     empty: "لا توجد مهام مقترحة"
+                },
+                shortcuts: {
+                    hint: "اضغط <strong>Ctrl+N</strong> لإضافة مهمة • <strong>Ctrl+R</strong> للتحديث",
+                    new_task: "مهمة جديدة",
+                    navigate: "تنقل",
+                    complete: "إكمال",
+                    delete: "حذف"
                 },
                 archive: {
                     title: "المهام المؤرشفة",
@@ -2294,6 +3998,25 @@
                 },
                 success: {
                     folder_deleted: "تم حذف المجلد وجميع مهامه بنجاح"
+                },
+                mascot: {
+                    hello: "مرحباً! لنكن منتجين! 💪",
+                    task_complete: "عمل رائع! مهمة مكتملة! 🎉",
+                    day_start: "لنجعل هذا اليوم ي counted! 🌟",
+                    thinking: "على ماذا نركز؟ 🤔",
+                    happy: "أنت تعمل بشكل مذهل! ⭐",
+                    excited: "رائع! استمر! 🔥",
+                    sleepy: "وقت للاستراحة؟ ☕"
+                },
+                day_complete: {
+                    title: "عمل رائع!",
+                    subtitle: "أكملت جميع مهامك اليوم!",
+                    tasks: "مهام منجزة",
+                    streak: "أيام متتالية",
+                    button: "استمر!"
+                },
+                streak: {
+                    label: "أيام متتالية"
                 }
             }
         };
@@ -2303,7 +4026,7 @@
                 this.todos = [];
                 this.folders = [];
                 this.currentLanguage = 'ar';
-                this.currentView = 'today';
+                this.currentView = null; // Will be set to 'today' in init()
                 this.lastCreatedFolderId = null;
                 this.filters = {
                     status: 'all',
@@ -2317,6 +4040,9 @@
                 this.selectedTasks = new Set();
                 this.isSelecting = false;
                 this.selectionStart = { x: 0, y: 0 };
+                // Keyboard navigation properties
+                this.focusedTaskId = null;
+                this.keyboardNavigationEnabled = true;
                 this.init();
             }
 
@@ -2327,11 +4053,24 @@
                 this.setupKeyboardShortcuts();
                 this.setupAutoResizeTextarea();
                 this.setupMultiSelect();
+                this.setupRippleEffects();
+                this.setupParticles();
                 this.checkTelegramStatus();
                 this.loadFolders();
                 this.loadStats();
                 // Start with Today view
                 this.switchView('today');
+            }
+
+            // Setup ripple effects for all buttons
+            setupRippleEffects() {
+                // Use event delegation for dynamically added buttons
+                document.addEventListener('click', (e) => {
+                    const button = e.target.closest('.btn, .view-tab, .language-btn');
+                    if (button) {
+                        this.createRipple(e);
+                    }
+                });
             }
 
             setupAutoResizeTextarea() {
@@ -2415,20 +4154,33 @@
             }
 
             setupKeyboardShortcuts() {
-                // Ctrl+N to quick add task (works with any keyboard layout)
-                // Ctrl+R to refresh and import Telegram tasks
                 document.addEventListener('keydown', (e) => {
-                    // Use e.code for physical key detection (works with Arabic, etc.)
+                    // Ignore if user is typing in an input, textarea, or select
+                    const isTyping = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName);
+                    const isModalOpen = document.querySelector('.modal-overlay.active');
+
+                    // ============ N Key - Quick Task Creation ============
+                    if (e.code === 'KeyN' && !e.ctrlKey && !e.metaKey && !e.altKey && !isTyping) {
+                        e.preventDefault();
+                        this.focusNewTaskInput();
+                        return;
+                    }
+
+                    // ============ Ctrl+N - Quick Add Task (existing) ============
                     if (e.ctrlKey && e.code === 'KeyN') {
                         e.preventDefault();
                         this.openQuickAdd();
+                        return;
                     }
-                    // Ctrl+R to refresh (works with any keyboard layout)
+
+                    // ============ Ctrl+R - Refresh (existing) ============
                     if (e.ctrlKey && e.code === 'KeyR') {
                         e.preventDefault();
                         this.refreshCurrentView();
+                        return;
                     }
-                    // Escape to exit quick add mode or clear selection
+
+                    // ============ Escape - Close modals / clear selection ============
                     if (e.key === 'Escape') {
                         if (this.quickAddMode) {
                             this.closeQuickAdd();
@@ -2436,9 +4188,218 @@
                         if (this.selectedTasks.size > 0) {
                             this.clearSelection();
                         }
+                        if (this.focusedTaskId) {
+                            this.clearKeyboardFocus();
+                        }
+                        // Close any open modals
+                        if (isModalOpen) {
+                            const modal = document.querySelector('.modal-overlay.active');
+                            if (modal) {
+                                modal.classList.remove('active');
+                            }
+                        }
+                        return;
+                    }
+
+                    // ============ Arrow Keys - Navigation ============
+                    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key) && !isTyping && !isModalOpen) {
+                        e.preventDefault();
+                        this.navigateTasks(e.key);
+                        return;
+                    }
+
+                    // ============ Space/Enter - Toggle Complete ============
+                    if ((e.key === ' ' || e.key === 'Enter') && !isTyping && !isModalOpen && this.focusedTaskId) {
+                        e.preventDefault();
+                        this.toggleFocusedTask();
+                        return;
+                    }
+
+                    // ============ Delete/Backspace - Delete Task ============
+                    if ((e.key === 'Delete' || e.key === 'Backspace') && !isTyping && !isModalOpen && this.focusedTaskId) {
+                        e.preventDefault();
+                        this.deleteFocusedTask();
+                        return;
                     }
                 });
             }
+
+            // ============ KEYBOARD NAVIGATION FUNCTIONS ============
+
+            focusNewTaskInput() {
+                // Switch to all tasks view to show the input
+                this.switchView('all');
+                // Focus on the title input
+                setTimeout(() => {
+                    const titleInput = document.getElementById('todo-title');
+                    if (titleInput) {
+                        titleInput.focus();
+                        titleInput.select();
+                    }
+                }, 100);
+            }
+
+            getVisibleTaskItems() {
+                // Get all visible task items based on current view
+                if (this.currentView === 'today') {
+                    return Array.from(document.querySelectorAll('.kanban-card:not(.adding):not(.removing)'));
+                } else if (this.currentView === 'archive') {
+                    return Array.from(document.querySelectorAll('.todo-item:not(.adding):not(.removing)'));
+                } else {
+                    // All tasks view
+                    const todoItems = Array.from(document.querySelectorAll('.todo-item:not(.adding):not(.removing)'));
+                    const suggestedItems = Array.from(document.querySelectorAll('.suggested-task-card:not(.adding):not(.removing)'));
+                    return [...todoItems, ...suggestedItems];
+                }
+            }
+
+            navigateTasks(direction) {
+                const items = this.getVisibleTaskItems();
+                if (items.length === 0) return;
+
+                let currentIndex = -1;
+                if (this.focusedTaskId) {
+                    currentIndex = items.findIndex(item => item.dataset.todoId === this.focusedTaskId);
+                }
+
+                let nextIndex = currentIndex;
+
+                switch (direction) {
+                    case 'ArrowDown':
+                        nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
+                        break;
+                    case 'ArrowUp':
+                        nextIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
+                        break;
+                    case 'ArrowRight':
+                        // In kanban view, move to next column
+                        if (this.currentView === 'today') {
+                            const currentItem = items[currentIndex];
+                            if (currentItem) {
+                                const currentColumn = currentItem.closest('.kanban-column');
+                                const columns = Array.from(document.querySelectorAll('.kanban-column'));
+                                const currentColIndex = columns.indexOf(currentColumn);
+                                if (currentColIndex < columns.length - 1) {
+                                    const nextColumn = columns[currentColIndex + 1];
+                                    const columnItems = Array.from(nextColumn.querySelectorAll('.kanban-card:not(.adding):not(.removing)'));
+                                    if (columnItems.length > 0) {
+                                        nextIndex = items.indexOf(columnItems[0]);
+                                    }
+                                }
+                            }
+                        } else {
+                            nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
+                        }
+                        break;
+                    case 'ArrowLeft':
+                        // In kanban view, move to previous column
+                        if (this.currentView === 'today') {
+                            const currentItem = items[currentIndex];
+                            if (currentItem) {
+                                const currentColumn = currentItem.closest('.kanban-column');
+                                const columns = Array.from(document.querySelectorAll('.kanban-column'));
+                                const currentColIndex = columns.indexOf(currentColumn);
+                                if (currentColIndex > 0) {
+                                    const prevColumn = columns[currentColIndex - 1];
+                                    const columnItems = Array.from(prevColumn.querySelectorAll('.kanban-card:not(.adding):not(.removing)'));
+                                    if (columnItems.length > 0) {
+                                        nextIndex = items.indexOf(columnItems[columnItems.length - 1]);
+                                    }
+                                }
+                            }
+                        } else {
+                            nextIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
+                        }
+                        break;
+                }
+
+                if (nextIndex >= 0 && nextIndex < items.length) {
+                    this.setFocusOnTask(items[nextIndex]);
+                }
+            }
+
+            setFocusOnTask(item) {
+                // Remove focus from previous item
+                this.clearKeyboardFocus();
+
+                // Set new focus
+                this.focusedTaskId = item.dataset.todoId;
+                item.classList.add('keyboard-focused');
+
+                // Scroll into view if needed
+                item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            clearKeyboardFocus() {
+                if (this.focusedTaskId) {
+                    const item = document.querySelector(`[data-todo-id="${this.focusedTaskId}"]`);
+                    if (item) {
+                        item.classList.remove('keyboard-focused');
+                    }
+                    this.focusedTaskId = null;
+                }
+            }
+
+            async toggleFocusedTask() {
+                if (!this.focusedTaskId) return;
+
+                const item = document.querySelector(`[data-todo-id="${this.focusedTaskId}"]`);
+                if (!item) return;
+
+                // In kanban view, cycle through statuses: todo -> doing -> done -> todo
+                if (this.currentView === 'today' && item.classList.contains('kanban-card')) {
+                    const currentColumn = item.closest('.kanban-column');
+                    if (!currentColumn) return;
+
+                    const currentStatus = currentColumn.dataset.status;
+                    const statusCycle = { 'todo': 'doing', 'doing': 'done', 'done': 'todo' };
+                    const newStatus = statusCycle[currentStatus];
+
+                    await this.updateKanbanStatus(this.focusedTaskId, newStatus);
+                } else {
+                    // In other views, toggle completion via checkbox
+                    const checkbox = item.querySelector('.todo-checkbox');
+                    if (checkbox) {
+                        checkbox.click();
+                    }
+                }
+            }
+
+            async deleteFocusedTask() {
+                if (!this.focusedTaskId) return;
+
+                const item = document.querySelector(`[data-todo-id="${this.focusedTaskId}"]`);
+                if (!item) return;
+
+                // Find the delete button
+                const deleteBtn = item.querySelector('.delete-todo-btn');
+                if (deleteBtn) {
+                    deleteBtn.click();
+                } else {
+                    // Fallback: call API directly
+                    if (confirm('Delete this task?')) {
+                        try {
+                            await fetch(`/api/todos/${this.focusedTaskId}`, { method: 'DELETE' });
+                            this.showNotification('Task deleted', 'success');
+                            // Refresh current view
+                            if (this.currentView === 'today') {
+                                this.loadTodayTodos();
+                            } else if (this.currentView === 'archive') {
+                                this.loadArchivedTodos();
+                            } else {
+                                this.loadTodos();
+                            }
+                            this.loadStats();
+                            this.loadFolders();
+                        } catch (error) {
+                            this.showNotification('Error deleting task', 'error');
+                        }
+                    }
+                }
+                this.clearKeyboardFocus();
+            }
+
+            // ============ END KEYBOARD NAVIGATION FUNCTIONS ============
 
             // ============ MULTI-SELECT FUNCTIONS ============
 
@@ -2676,6 +4637,9 @@
                     });
 
                     if (response.ok) {
+                        // Play whoosh sound for clearing multiple tasks
+                        this.playWhooshSound();
+
                         this.clearSelection();
                         this.showNotification(`${count} task(s) deleted successfully`, 'success');
 
@@ -2803,7 +4767,12 @@
             }
 
             switchView(view) {
+                if (this.currentView === view) return; // Don't switch if already on this view
+                const previousView = this.currentView;
                 this.currentView = view;
+
+                // Clear keyboard focus when switching views
+                this.clearKeyboardFocus();
 
                 // Update tab styling
                 document.querySelectorAll('.view-tab').forEach(tab => {
@@ -2817,54 +4786,84 @@
                 const notesContainer = document.getElementById('notes-container');
                 const controlsSection = document.querySelector('.controls');
                 const foldersSection = document.querySelector('.folders-section');
+                const allContainers = [todosContainer, kanbanContainer, archiveContainer, notesContainer];
 
-                if (view === 'today') {
-                    // Show Kanban board
-                    todosContainer.style.display = 'none';
-                    kanbanContainer.style.display = 'grid';
-                    archiveContainer.style.display = 'none';
-                    notesContainer.style.display = 'none';
-                    controlsSection.style.display = 'none';
-                    foldersSection.style.display = 'none';
-                    this.loadTodayTodos();
-                } else if (view === 'archive') {
-                    // Show archive
-                    todosContainer.style.display = 'none';
-                    kanbanContainer.style.display = 'none';
-                    archiveContainer.style.display = 'block';
-                    notesContainer.style.display = 'none';
-                    controlsSection.style.display = 'none';
-                    foldersSection.style.display = 'none';
-                    this.loadArchivedTodos();
-                } else if (view === 'notes') {
-                    // Show notes
-                    todosContainer.style.display = 'none';
-                    kanbanContainer.style.display = 'none';
-                    archiveContainer.style.display = 'none';
-                    notesContainer.style.display = 'block';
-                    controlsSection.style.display = 'none';
-                    foldersSection.style.display = 'none';
-                    this.loadNotes();
-                } else {
-                    // Show all tasks
-                    todosContainer.style.display = 'block';
-                    kanbanContainer.style.display = 'none';
-                    archiveContainer.style.display = 'none';
-                    notesContainer.style.display = 'none';
-                    controlsSection.style.display = 'block';
-                    foldersSection.style.display = 'block';
-                    this.loadTodos();
-                    // Auto-focus on title input for quick task entry
+                // Fade out current view
+                allContainers.forEach(container => {
+                    if (container && container.style.display !== 'none') {
+                        container.classList.add('fade-out');
+                        container.classList.remove('fade-in');
+                    }
+                });
+
+                // Wait for fade out, then switch views
+                setTimeout(() => {
+                    if (view === 'today') {
+                        // Show Kanban board
+                        todosContainer.style.display = 'none';
+                        kanbanContainer.style.display = 'grid';
+                        archiveContainer.style.display = 'none';
+                        notesContainer.style.display = 'none';
+                        controlsSection.style.display = 'none';
+                        foldersSection.style.display = 'none';
+                        kanbanContainer.classList.remove('fade-out');
+                        kanbanContainer.classList.add('fade-in');
+                        this.loadTodayTodos();
+                    } else if (view === 'archive') {
+                        // Show archive
+                        todosContainer.style.display = 'none';
+                        kanbanContainer.style.display = 'none';
+                        archiveContainer.style.display = 'block';
+                        notesContainer.style.display = 'none';
+                        controlsSection.style.display = 'none';
+                        foldersSection.style.display = 'none';
+                        archiveContainer.classList.remove('fade-out');
+                        archiveContainer.classList.add('fade-in');
+                        this.loadArchivedTodos();
+                    } else if (view === 'notes') {
+                        // Show notes
+                        todosContainer.style.display = 'none';
+                        kanbanContainer.style.display = 'none';
+                        archiveContainer.style.display = 'none';
+                        notesContainer.style.display = 'block';
+                        controlsSection.style.display = 'none';
+                        foldersSection.style.display = 'none';
+                        notesContainer.classList.remove('fade-out');
+                        notesContainer.classList.add('fade-in');
+                        this.loadNotes();
+                    } else {
+                        // Show all tasks
+                        todosContainer.style.display = 'block';
+                        kanbanContainer.style.display = 'none';
+                        archiveContainer.style.display = 'none';
+                        notesContainer.style.display = 'none';
+                        controlsSection.style.display = 'block';
+                        foldersSection.style.display = 'block';
+                        todosContainer.classList.remove('fade-out');
+                        todosContainer.classList.add('fade-in');
+                        this.loadTodos();
+                        // Auto-focus on title input for quick task entry
+                        setTimeout(() => {
+                            const titleInput = document.getElementById('todo-title');
+                            if (titleInput) {
+                                titleInput.focus();
+                            }
+                        }, 100);
+                    }
+
+                    // Remove animation classes after animation completes
                     setTimeout(() => {
-                        const titleInput = document.getElementById('todo-title');
-                        if (titleInput) {
-                            titleInput.focus();
-                        }
-                    }, 100);
-                }
+                        allContainers.forEach(container => {
+                            container.classList.remove('fade-out', 'fade-in');
+                        });
+                    }, 400);
+                }, 150);
             }
 
             async loadTodayTodos() {
+                // Show skeleton loading for Kanban and suggested tasks
+                this.showSkeletonKanban();
+
                 try {
                     // Load Today tasks for Kanban
                     const response = await fetch('/api/todos/today');
@@ -2891,6 +4890,30 @@
                 }
             }
 
+            // Show skeleton loading for Kanban columns
+            showSkeletonKanban() {
+                const columns = document.querySelectorAll('.kanban-column .kanban-cards');
+                columns.forEach(column => {
+                    column.innerHTML = Array(2).fill(0).map(() => `
+                        <div class="skeleton-card">
+                            <div class="skeleton skeleton-title"></div>
+                            <div class="skeleton skeleton-text short"></div>
+                        </div>
+                    `).join('');
+                });
+
+                // Show skeleton for suggested tasks
+                const suggestedContainer = document.getElementById('suggested-tasks-container');
+                if (suggestedContainer) {
+                    suggestedContainer.innerHTML = Array(3).fill(0).map(() => `
+                        <div class="skeleton-card" style="min-width: 200px; max-width: 200px;">
+                            <div class="skeleton skeleton-title"></div>
+                            <div class="skeleton skeleton-text short"></div>
+                        </div>
+                    `).join('');
+                }
+            }
+
             updateTodayBadge(count) {
                 const badge = document.getElementById('today-badge');
                 if (badge) {
@@ -2900,6 +4923,10 @@
                         badge.style.display = 'none';
                     } else {
                         badge.style.display = 'inline-block';
+                        // Add animation when badge updates
+                        badge.classList.remove('updated');
+                        void badge.offsetWidth; // Trigger reflow
+                        badge.classList.add('updated');
                     }
                 }
             }
@@ -2908,7 +4935,20 @@
                 const container = document.getElementById('suggested-tasks-container');
 
                 if (tasks.length === 0) {
-                    container.innerHTML = `<div class="suggested-empty" data-i18n="suggested.empty">No suggested tasks available</div>`;
+                    container.innerHTML = `
+                        <div class="empty-state-animated" style="padding: 40px 20px;">
+                            <span class="empty-state-decoration"><i class="fas fa-star"></i></span>
+                            <span class="empty-state-decoration"><i class="fas fa-circle"></i></span>
+                            <span class="empty-state-decoration"><i class="fas fa-lightbulb"></i></span>
+                            <div class="empty-state-illustration" style="width: 120px; height: 120px;">
+                                <div class="empty-state-icon" style="font-size: 3rem;">
+                                    <i class="fas fa-tasks"></i>
+                                </div>
+                            </div>
+                            <h3 class="empty-state-title" data-i18n="suggested.empty">لايوجد مهام لاقتراحها عليك</h3>
+                            <p class="empty-state-message" data-i18n="suggested.hint">اسحب المهام واضفها الى اليوم في حالة كانت موجودة</p>
+                        </div>
+                    `;
                     this.updateDynamicTranslations();
                     return;
                 }
@@ -2958,6 +4998,17 @@
             }
 
             async loadArchivedTodos() {
+                // Show skeleton loading
+                const container = document.getElementById('archive-container');
+                if (container) {
+                    container.innerHTML = Array(3).fill(0).map(() => `
+                        <div class="skeleton-card">
+                            <div class="skeleton skeleton-title"></div>
+                            <div class="skeleton skeleton-text medium"></div>
+                        </div>
+                    `).join('');
+                }
+
                 try {
                     const response = await fetch('/api/todos/archived');
                     const todos = await response.json();
@@ -2984,15 +5035,25 @@
                     done: todos.filter(t => t.kanban_status === 'done')
                 };
 
-                // Render cards
-                Object.keys(todosByStatus).forEach(status => {
+                // Render cards with stagger animation
+                Object.keys(todosByStatus).forEach((status, statusIndex) => {
                     const statusTodos = todosByStatus[status];
-                    statusTodos.forEach(todo => {
+                    statusTodos.forEach((todo, cardIndex) => {
                         const card = this.createKanbanCard(todo);
+                        // Add staggered animation delay
+                        const delay = (statusIndex * 0.1) + (cardIndex * 0.05);
+                        card.style.animationDelay = `${delay}s`;
+                        card.classList.add('reordering');
+                        setTimeout(() => {
+                            card.classList.remove('reordering');
+                        }, 400 + (delay * 1000));
                         columns[status].appendChild(card);
                     });
                     // Update counts
-                    document.getElementById(`kanban-${status}-count`).textContent = statusTodos.length;
+                    const countEl = document.getElementById(`kanban-${status}-count`);
+                    countEl.textContent = statusTodos.length;
+                    countEl.classList.add('updating');
+                    setTimeout(() => countEl.classList.remove('updating'), 400);
                 });
 
                 // Setup drag and drop
@@ -3019,21 +5080,36 @@
 
                 if (totalTodayTasks === 0) {
                     // No tasks yet - show empty state
-                    progressBar.style.width = '0%';
+                    this.updateProgressBar(0);
                     progressStats.textContent = t.daily_progress.empty || 'No tasks selected for today';
                     return;
                 }
 
                 const percentage = Math.round((completedTasks / totalTodayTasks) * 100);
-                progressBar.style.width = percentage + '%';
+
+                // Use animated progress bar update
+                this.updateProgressBar(percentage);
 
                 // Update stats text
                 progressStats.textContent = `${completedTasks} / ${totalTodayTasks} · ${percentage}%`;
+
+                // Mascot reacts to progress
+                this.mascotReactToProgress(percentage);
 
                 // Handle completion state
                 if (percentage === 100) {
                     progressSection.classList.add('completed');
                     progressStats.innerHTML = `<i class="fas fa-check-circle"></i> ${t.daily_progress.completed || 'Today Completed!'}`;
+
+                    // Trigger day complete celebration (only once per session)
+                    if (!this.dayCompleteCelebrated) {
+                        this.dayCompleteCelebrated = true;
+                        // Get streak from localStorage or default to 1
+                        const streak = parseInt(localStorage.getItem('dayStreak') || '1');
+                        this.showDayCompleteCelebration(completedTasks, streak);
+                    }
+                } else {
+                    this.dayCompleteCelebrated = false;
                 }
             }
 
@@ -3149,6 +5225,64 @@
                 });
             }
 
+            setupTodoReorderDragDrop() {
+                const container = document.getElementById('todos-container');
+                if (!container) return;
+
+                const todoItems = container.querySelectorAll('.todo-item');
+
+                todoItems.forEach(item => {
+                    item.addEventListener('dragstart', (e) => {
+                        item.classList.add('dragging');
+                        e.dataTransfer.setData('text/plain', item.dataset.todoId);
+                        e.dataTransfer.effectAllowed = 'move';
+                    });
+
+                    item.addEventListener('dragend', () => {
+                        item.classList.remove('dragging');
+                        document.querySelectorAll('.todo-item').forEach(i => {
+                            i.classList.remove('drag-over');
+                        });
+                    });
+
+                    item.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        const draggingItem = document.querySelector('.todo-item.dragging');
+                        if (draggingItem !== item) {
+                            item.classList.add('drag-over');
+                        }
+                    });
+
+                    item.addEventListener('dragleave', () => {
+                        item.classList.remove('drag-over');
+                    });
+
+                    item.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        item.classList.remove('drag-over');
+
+                        const draggingItem = document.querySelector('.todo-item.dragging');
+                        if (draggingItem && draggingItem !== item) {
+                            // Get all todo items
+                            const allItems = [...container.querySelectorAll('.todo-item')];
+                            const draggedIndex = allItems.indexOf(draggingItem);
+                            const targetIndex = allItems.indexOf(item);
+
+                            // Reorder in DOM
+                            if (draggedIndex < targetIndex) {
+                                item.after(draggingItem);
+                            } else {
+                                item.before(draggingItem);
+                            }
+
+                            // Optional: Show notification
+                            // this.showNotification('Task reordered', 'info');
+                        }
+                    });
+                });
+            }
+
             async addSuggestedTaskToToday(todoId, status) {
                 try {
                     // First add to Today
@@ -3213,10 +5347,24 @@
                     doneColumn.classList.remove('task-complete-flash');
                     void doneColumn.offsetWidth; // Trigger reflow
                     doneColumn.classList.add('task-complete-flash');
+
+                    // Create emoji burst at the done column position
+                    const rect = doneColumn.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    this.createEmojiBurst(centerX, centerY);
                 }
 
                 // Create confetti burst
                 this.createConfettiBurst();
+
+                // Mascot celebrates
+                if (this.mascotState?.visible) {
+                    this.setMascotEmotion('excited');
+                    this.mascotSpeak('task_complete');
+                    this.createMascotHearts(2);
+                    setTimeout(() => this.setMascotEmotion('happy'), 1500);
+                }
             }
 
             createConfettiBurst() {
@@ -3251,10 +5399,18 @@
 
                 if (todos.length === 0) {
                     container.innerHTML = `
-                        <div class="archive-empty">
-                            <i class="fas fa-archive"></i>
-                            <h3 data-i18n="archive.empty">No archived tasks</h3>
-                            <p data-i18n="archive.empty_message">Completed tasks will appear here</p>
+                        <div class="empty-state-animated">
+                            <span class="empty-state-decoration"><i class="fas fa-star"></i></span>
+                            <span class="empty-state-decoration"><i class="fas fa-circle"></i></span>
+                            <span class="empty-state-decoration"><i class="fas fa-check"></i></span>
+                            <span class="empty-state-decoration"><i class="fas fa-bolt"></i></span>
+                            <div class="empty-state-illustration">
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-archive"></i>
+                                </div>
+                            </div>
+                            <h3 class="empty-state-title" data-i18n="archive.empty">ارشيفك فارغ حاليا</h3>
+                            <p class="empty-state-message" data-i18n="archive.empty_message">المهام المكتملة سوف تضهر هنا</p>
                         </div>
                     `;
                     this.updateDynamicTranslations();
@@ -3437,20 +5593,20 @@
                     element.textContent = `${count} ${translations[this.currentLanguage].common.tasks}`;
                 });
 
-                // Update empty state messages
-                const emptyState = document.querySelector('.empty-state');
+                // Update empty state messages (both plain and animated)
+                const emptyState = document.querySelector('.empty-state') || document.querySelector('.empty-state-animated');
                 if (emptyState && this.todos.length === 0 && this.folders.length > 0) {
-                    const title = emptyState.querySelector('h3');
-                    const message = emptyState.querySelector('p');
+                    const title = emptyState.querySelector('h3') || emptyState.querySelector('.empty-state-title');
+                    const message = emptyState.querySelector('p') || emptyState.querySelector('.empty-state-message');
                     if (title) title.textContent = translations[this.currentLanguage].empty.title;
                     if (message) message.textContent = translations[this.currentLanguage].empty.message;
                 }
 
-                // Update no folders message
-                const noFoldersState = document.querySelector('.empty-state');
+                // Update no folders message (both plain and animated)
+                const noFoldersState = document.querySelector('.empty-state') || document.querySelector('.empty-state-animated');
                 if (noFoldersState && this.folders.length === 0) {
-                    const title = noFoldersState.querySelector('h3');
-                    const message = noFoldersState.querySelector('p');
+                    const title = noFoldersState.querySelector('h3') || noFoldersState.querySelector('.empty-state-title');
+                    const message = noFoldersState.querySelector('p') || noFoldersState.querySelector('.empty-state-message');
                     if (title) title.textContent = translations[this.currentLanguage].errors.no_folders_title;
                     if (message) message.textContent = translations[this.currentLanguage].errors.no_folders_message;
                 }
@@ -3548,9 +5704,23 @@
                         document.querySelectorAll('.move-folder-global-dropdown').forEach(d => d.remove());
                     }
                 });
+
+                // Double-click to complete tasks
+                document.getElementById('todos-container').addEventListener('dblclick', (e) => {
+                    const todoItem = e.target.closest('.todo-item');
+                    if (todoItem && !e.target.closest('button') && !e.target.closest('input') && !e.target.closest('.todo-checkbox-wrapper')) {
+                        const todoId = todoItem.getAttribute('data-todo-id');
+                        if (todoId) {
+                            this.toggleTodo(parseInt(todoId));
+                        }
+                    }
+                });
             }
 
             async loadFolders() {
+                // Show skeleton loading for folders
+                this.showSkeletonFolders();
+
                 try {
                     const response = await fetch('/api/folders');
                     this.folders = await response.json();
@@ -3569,9 +5739,10 @@
                 this.folders.forEach(folder => {
                     const folderCard = document.createElement('div');
                     folderCard.className = 'folder-card';
+                    folderCard.dataset.folderId = folder.id;
                     folderCard.style.borderLeftColor = folder.color;
                     folderCard.style.borderLeftWidth = '4px';
-                    folderCard.onclick = () => this.selectFolder(folder.id);
+                    folderCard.onclick = (e) => this.selectFolder(folder.id, e.currentTarget);
 
                     // Truncar el nombre del folder una letra antes (máx 13) y tooltip
                     let folderNameDisplay = folder.name;
@@ -3636,14 +5807,22 @@
                     // Disable the form
                     addTodoForm.style.opacity = '0.5';
                     addTodoForm.style.pointerEvents = 'none';
-                    
+
                     // Show message in todos container
                     const container = document.getElementById('todos-container');
                     container.innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-folder-open"></i>
-                            <h3>${translations[this.currentLanguage].errors.no_folders_title}</h3>
-                            <p>${translations[this.currentLanguage].errors.no_folders_message}</p>
+                        <div class="empty-state-animated">
+                            <span class="empty-state-decoration"><i class="fas fa-folder"></i></span>
+                            <span class="empty-state-decoration"><i class="fas fa-circle"></i></span>
+                            <span class="empty-state-decoration"><i class="fas fa-plus"></i></span>
+                            <span class="empty-state-decoration"><i class="fas fa-star"></i></span>
+                            <div class="empty-state-illustration">
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-folder-open"></i>
+                                </div>
+                            </div>
+                            <h3 class="empty-state-title">${translations[this.currentLanguage].errors.no_folders_title}</h3>
+                            <p class="empty-state-message">${translations[this.currentLanguage].errors.no_folders_message}</p>
                         </div>
                     `;
                 } else {
@@ -3665,7 +5844,17 @@
                 }
             }
 
-            selectFolder(folderId) {
+            selectFolder(folderId, clickedCard = null) {
+                // Animate folder cards
+                document.querySelectorAll('.folder-card').forEach(card => {
+                    if (card.classList.contains('active')) {
+                        card.classList.add('switching-out');
+                        setTimeout(() => {
+                            card.classList.remove('switching-out', 'active');
+                        }, 300);
+                    }
+                });
+
                 // Update folder filter
                 document.getElementById('folder-filter').value = folderId;
                 this.filters.folder = folderId;
@@ -3675,19 +5864,34 @@
 
                 this.loadTodos();
 
-                // Update visual selection
-                document.querySelectorAll('.folder-card').forEach(card => {
-                    card.classList.remove('active');
-                });
-                event.currentTarget.classList.add('active');
+                // Update visual selection with animation
+                setTimeout(() => {
+                    document.querySelectorAll('.folder-card').forEach(card => {
+                        if (card.dataset.folderId === String(folderId) || (folderId === 'all' && card.dataset.folderId === 'all')) {
+                            card.classList.add('switching-in', 'active');
+                            setTimeout(() => {
+                                card.classList.remove('switching-in');
+                            }, 400);
+                        }
+                    });
+                }, 150);
             }
 
             showAddFolderModal() {
-                document.getElementById('add-folder-modal').style.display = 'block';
+                const modal = document.getElementById('add-folder-modal');
+                modal.style.display = 'block';
+                modal.classList.remove('hiding');
+                modal.classList.add('showing');
             }
 
             closeModal(modalId) {
-                document.getElementById(modalId).style.display = 'none';
+                const modal = document.getElementById(modalId);
+                modal.classList.remove('showing');
+                modal.classList.add('hiding');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    modal.classList.remove('hiding');
+                }, 200);
             }
 
             async addFolder() {
@@ -3751,6 +5955,10 @@
             }
 
             async loadTodos() {
+                // Show skeleton loading
+                const container = document.getElementById('todos-container');
+                this.showSkeletonTodos(container);
+
                 try {
                     const params = new URLSearchParams();
                     if (this.filters.status !== 'all') params.append('status', this.filters.status);
@@ -3772,19 +5980,239 @@
             }
 
             async loadStats() {
+                // Show skeleton stats
+                this.showSkeletonStats();
+
                 try {
                     const response = await fetch('/api/stats');
                     const stats = await response.json();
-                    
-                    document.getElementById('total-todos').textContent = stats.total;
-                    document.getElementById('completed-todos').textContent = stats.completed;
-                    document.getElementById('pending-todos').textContent = stats.pending;
-                    
+
+                    // Animate stat numbers with count effect
+                    this.animateCounter('total-todos', stats.total);
+                    this.animateCounter('completed-todos', stats.completed);
+                    this.animateCounter('pending-todos', stats.pending);
+
                     const completionRate = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
                     document.getElementById('completion-rate').textContent = `${completionRate}%`;
                 } catch (error) {
                     console.error('Error loading stats:', error);
                 }
+            }
+
+            // Show skeleton loading for todos
+            showSkeletonTodos(container) {
+                if (!container) return;
+                container.innerHTML = Array(3).fill(0).map(() => `
+                    <div class="skeleton-card">
+                        <div class="skeleton skeleton-title"></div>
+                        <div class="skeleton skeleton-text medium"></div>
+                        <div class="skeleton skeleton-meta">
+                            <div class="skeleton skeleton-badge"></div>
+                            <div class="skeleton skeleton-badge"></div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Show skeleton loading for stats
+            showSkeletonStats() {
+                const statNumbers = document.querySelectorAll('.stat-number');
+                const statLabels = document.querySelectorAll('.stat-label');
+                statNumbers.forEach(el => {
+                    el.classList.add('skeleton');
+                    el.textContent = '';
+                });
+                statLabels.forEach(el => {
+                    el.classList.add('skeleton');
+                    el.textContent = '';
+                });
+            }
+
+            // Show skeleton loading for folders
+            showSkeletonFolders() {
+                const container = document.querySelector('.folders-grid');
+                if (!container) return;
+                container.innerHTML = Array(4).fill(0).map(() => `
+                    <div class="skeleton-folder">
+                        <div class="skeleton skeleton-folder-icon"></div>
+                        <div class="skeleton skeleton-folder-name"></div>
+                    </div>
+                `).join('');
+            }
+
+            // Number counter animation
+            animateCounter(elementId, newValue) {
+                const element = document.getElementById(elementId);
+
+                // Remove skeleton class if present
+                element.classList.remove('skeleton');
+                // Also remove skeleton from sibling label
+                const labelElement = element.parentElement.querySelector('.stat-label');
+                if (labelElement) {
+                    labelElement.classList.remove('skeleton');
+                }
+
+                const currentValue = parseInt(element.textContent) || 0;
+                const oldValue = currentValue;
+
+                if (currentValue === newValue) return;
+
+                // Add appropriate animation class
+                element.classList.remove('increase', 'decrease', 'shake');
+                void element.offsetWidth; // Trigger reflow
+
+                if (newValue > currentValue) {
+                    element.classList.add('increase');
+                } else if (newValue < currentValue) {
+                    if (elementId === 'pending-todos') {
+                        element.classList.add('shake'); // Shake when pending increases
+                    } else {
+                        element.classList.add('decrease');
+                    }
+                }
+
+                // Animate the number counting
+                const duration = 500;
+                const startTime = performance.now();
+
+                const updateCount = (currentTime) => {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+
+                    // Easing function for smooth animation
+                    const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+                    const currentCount = Math.round(oldValue + (newValue - oldValue) * easeOutQuart);
+
+                    element.textContent = currentCount;
+
+                    if (progress < 1) {
+                        requestAnimationFrame(updateCount);
+                    } else {
+                        element.textContent = newValue;
+                        // Remove animation class after completion
+                        setTimeout(() => {
+                            element.classList.remove('increase', 'decrease', 'shake');
+                        }, 300);
+                    }
+                };
+
+                requestAnimationFrame(updateCount);
+            }
+
+            // Create ripple effect on button click
+            createRipple(event) {
+                const button = event.currentTarget;
+
+                // Remove existing ripple
+                const existingRipple = button.querySelector('.ripple');
+                if (existingRipple) {
+                    existingRipple.remove();
+                }
+
+                const circle = document.createElement('span');
+                const diameter = Math.max(button.clientWidth, button.clientHeight);
+                const radius = diameter / 2;
+
+                const rect = button.getBoundingClientRect();
+                circle.style.width = circle.style.height = `${diameter}px`;
+                circle.style.left = `${event.clientX - rect.left - radius}px`;
+                circle.style.top = `${event.clientY - rect.top - radius}px`;
+                circle.classList.add('ripple');
+
+                // Remove ripple after animation
+                setTimeout(() => circle.remove(), 600);
+
+                button.appendChild(circle);
+            }
+
+            // Create burst animation on checkbox/task completion
+            createCompletionBurst(element) {
+                const rect = element.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+
+                // Create burst container
+                const burst = document.createElement('div');
+                burst.className = 'checkbox-burst';
+                burst.style.left = `${centerX}px`;
+                burst.style.top = `${centerY}px`;
+                document.body.appendChild(burst);
+
+                // Create particles
+                const colors = ['#34c759', '#30d158', '#32d74b', '#4ade80', '#22c55e'];
+                const particleCount = 12;
+
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'burst-particle';
+                    particle.style.backgroundColor = colors[i % colors.length];
+
+                    const angle = (i / particleCount) * 360;
+                    const distance = 40 + Math.random() * 30;
+                    const tx = Math.cos(angle * Math.PI / 180) * distance;
+                    const ty = Math.sin(angle * Math.PI / 180) * distance;
+
+                    particle.style.setProperty('--tx', `${tx}px`);
+                    particle.style.setProperty('--ty', `${ty}px`);
+
+                    burst.appendChild(particle);
+                }
+
+                // Create star particles
+                const starContainer = document.createElement('div');
+                starContainer.className = 'success-stars';
+                starContainer.style.left = `${centerX}px`;
+                starContainer.style.top = `${centerY}px`;
+                document.body.appendChild(starContainer);
+
+                const stars = ['⭐', '✨', '🌟', '💫'];
+                for (let i = 0; i < 4; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star-particle';
+                    star.textContent = stars[i];
+                    star.style.left = '0';
+                    star.style.top = '0';
+
+                    const angle = (i / 4) * 360;
+                    const distance1 = 30 + Math.random() * 20;
+                    const distance2 = 60 + Math.random() * 30;
+                    const tx = Math.cos(angle * Math.PI / 180) * distance1;
+                    const ty = Math.sin(angle * Math.PI / 180) * distance1;
+                    const tx2 = Math.cos(angle * Math.PI / 180) * distance2;
+                    const ty2 = Math.sin(angle * Math.PI / 180) * distance2;
+
+                    star.style.setProperty('--tx', `${tx}px`);
+                    star.style.setProperty('--ty', `${ty}px`);
+                    star.style.setProperty('--tx2', `${tx2}px`);
+                    star.style.setProperty('--ty2', `${ty2}px`);
+
+                    starContainer.appendChild(star);
+                }
+
+                // Clean up
+                setTimeout(() => {
+                    burst.remove();
+                    starContainer.remove();
+                }, 800);
+            }
+
+            // Update progress bar with animation
+            updateProgressBar(percentage) {
+                const progressBar = document.getElementById('daily-progress-bar');
+                if (!progressBar) return;
+
+                // Add updating class for pulse effect
+                progressBar.classList.add('updating');
+
+                // Update width after a small delay for animation
+                setTimeout(() => {
+                    progressBar.style.width = `${percentage}%`;
+                }, 50);
+
+                // Remove updating class after animation
+                setTimeout(() => {
+                    progressBar.classList.remove('updating');
+                }, 300);
             }
 
             async addTodo() {
@@ -3882,12 +6310,41 @@
                     }
                 } else {
                     // Task is not completed - mark as completed AND archive
+                    // Get the todo element for animation before API call
+                    const todoElement = document.querySelector(`[data-todo-id="${id}"]`);
+                    const completeButton = todoElement?.querySelector('.btn-success');
+
+                    // Trigger completion burst animation
+                    if (completeButton) {
+                        this.createCompletionBurst(completeButton);
+
+                        // Also trigger emoji burst at button position
+                        const rect = completeButton.getBoundingClientRect();
+                        this.createEmojiBurst(rect.left + rect.width / 2, rect.top);
+                    }
+
+                    // Mascot celebrates
+                    if (this.mascotState?.visible) {
+                        this.setMascotEmotion('excited');
+                        this.mascotSpeak('task_complete');
+                        this.createMascotHearts(2);
+                        setTimeout(() => this.setMascotEmotion('happy'), 1500);
+                    }
+
+                    // Add completing animation to the todo item
+                    if (todoElement) {
+                        todoElement.classList.add('completing');
+                    }
+
                     try {
                         const response = await fetch(`/api/todos/${id}/archive`, {
                             method: 'PUT'
                         });
 
                         if (response.ok) {
+                            // Play success sound
+                            this.playSuccessSound();
+
                             this.loadTodos();
                             this.loadStats();
                             this.loadFolders();
@@ -3896,9 +6353,40 @@
                             throw new Error('Error updating task');
                         }
                     } catch (error) {
+                        // Remove animation classes on error
+                        if (todoElement) {
+                            todoElement.classList.remove('completing');
+                        }
                         this.showNotification('Error updating task', 'error');
                     }
                 }
+            }
+
+            // Play success sound effect
+            playSuccessSound() {
+                const audio = new Audio('/static/Successful.wav');
+                audio.volume = 0.3;
+                audio.play().catch(() => {
+                    // Ignore autoplay errors
+                });
+            }
+
+            // Play delete sound effect
+            playDeleteSound() {
+                const audio = new Audio('/static/delete_task.wav');
+                audio.volume = 0.3;
+                audio.play().catch(() => {
+                    // Ignore autoplay errors
+                });
+            }
+
+            // Play whoosh sound effect for clearing all tasks
+            playWhooshSound() {
+                const audio = new Audio('/static/Whoosh.wav');
+                audio.volume = 0.3;
+                audio.play().catch(() => {
+                    // Ignore autoplay errors
+                });
             }
 
             async deleteTodo(id) {
@@ -3908,6 +6396,9 @@
                     });
 
                     if (response.ok) {
+                        // Play delete sound effect
+                        this.playDeleteSound();
+
                         // Refresh the appropriate view based on current view
                         if (this.currentView === 'archive') {
                             this.loadArchivedTodos();
@@ -3928,6 +6419,18 @@
             // ============= NOTES FUNCTIONS =============
 
             async loadNotes() {
+                // Show skeleton loading for notes
+                const container = document.getElementById('notes-list');
+                if (container) {
+                    container.innerHTML = Array(2).fill(0).map(() => `
+                        <div class="skeleton-card" style="min-height: 80px;">
+                            <div class="skeleton skeleton-text long"></div>
+                            <div class="skeleton skeleton-text medium"></div>
+                            <div class="skeleton skeleton-text short"></div>
+                        </div>
+                    `).join('');
+                }
+
                 try {
                     const response = await fetch('/api/notes');
                     const notes = await response.json();
@@ -3942,10 +6445,18 @@
 
                 if (notes.length === 0) {
                     container.innerHTML = `
-                        <div class="notes-empty">
-                            <i class="fas fa-sticky-note"></i>
-                            <p data-i18n="notes.empty">No notes yet</p>
-                            <p data-i18n="notes.empty_message" style="font-size: 0.9rem; margin-top: 8px;">Create your first note above</p>
+                        <div class="empty-state-animated">
+                            <span class="empty-state-decoration"><i class="fas fa-star"></i></span>
+                            <span class="empty-state-decoration"><i class="fas fa-circle"></i></span>
+                            <span class="empty-state-decoration"><i class="fas fa-pen"></i></span>
+                            <span class="empty-state-decoration"><i class="fas fa-lightbulb"></i></span>
+                            <div class="empty-state-illustration">
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-sticky-note"></i>
+                                </div>
+                            </div>
+                            <h3 class="empty-state-title" data-i18n="notes.empty">لايوجد ملاحظات هنا</h3>
+                            <p class="empty-state-message" data-i18n="notes.empty_message">اظف ملاحظاتك هنا من الاعلى</p>
                         </div>
                     `;
                     this.updateDynamicTranslations();
@@ -4108,21 +6619,50 @@
 
             renderTodos() {
                 const container = document.getElementById('todos-container');
-                
+
                 if (this.todos.length === 0) {
                     container.innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-clipboard-list"></i>
-                            <h3>${translations[this.currentLanguage].empty.title}</h3>
-                            <p>${translations[this.currentLanguage].empty.message}</p>
+                        <div class="empty-state-animated">
+                            <span class="empty-state-decoration"><i class="fas fa-star"></i></span>
+                            <span class="empty-state-decoration"><i class="fas fa-circle"></i></span>
+                            <span class="empty-state-decoration"><i class="fas fa-check"></i></span>
+                            <span class="empty-state-decoration"><i class="fas fa-bolt"></i></span>
+                            <div class="empty-state-illustration">
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-clipboard-list"></i>
+                                </div>
+                            </div>
+                            <h3 class="empty-state-title">${translations[this.currentLanguage].empty.title}</h3>
+                            <p class="empty-state-message">${translations[this.currentLanguage].empty.message}</p>
                         </div>
                     `;
                     this.updateDynamicTranslations();
                     return;
                 }
 
-                container.innerHTML = this.todos.map(todo => this.renderTodoItem(todo)).join('');
+                // Add filter-transition class for staggered animations
+                container.classList.add('filter-transition');
+
+                container.innerHTML = this.todos.map((todo, index) => {
+                    const staggerClass = `stagger-${(index % 5) + 1}`;
+                    return this.renderTodoItem(todo).replace('fade-in', `filtering-in ${staggerClass}`);
+                }).join('');
+
                 this.updateDynamicTranslations();
+
+                // Setup drag and drop for reordering
+                this.setupTodoReorderDragDrop();
+
+                // Remove filter-transition class after animations
+                setTimeout(() => {
+                    container.classList.remove('filter-transition');
+                    container.querySelectorAll('.todo-item').forEach(item => {
+                        item.classList.remove('filtering-in');
+                        item.classList.forEach(cls => {
+                            if (cls.startsWith('stagger-')) item.classList.remove(cls);
+                        });
+                    });
+                }, 500);
             }
 
             renderTodoItem(todo) {
@@ -4144,7 +6684,7 @@
                 const isSelected = this.selectedTasks.has(String(todo.id));
 
                 return `
-                    <div class="todo-item ${todo.completed ? 'completed' : ''} ${isSelected ? 'selected' : ''} fade-in" data-todo-id="${todo.id}">
+                    <div class="todo-item ${todo.completed ? 'completed' : ''} ${isSelected ? 'selected' : ''} fade-in" data-todo-id="${todo.id}" draggable="true">
                         <div class="todo-checkbox-wrapper ${isSelected ? 'checked' : ''}" onclick="todoApp.toggleTaskSelection(${todo.id})"></div>
                         <input type="checkbox" class="todo-checkbox" ${isSelected ? 'checked' : ''} onchange="todoApp.toggleTaskSelection(${todo.id})">
                         <div class="todo-header">
@@ -4241,20 +6781,352 @@
 
             showNotification(message, type = 'info') {
                 const container = document.getElementById('notification-container');
+
+                // Remove any existing notifications of the same type to avoid clutter
+                const existingNotifications = container.querySelectorAll(`.notification.${type}`);
+                existingNotifications.forEach(n => {
+                    n.classList.add('hiding');
+                    setTimeout(() => n.remove(), 400);
+                });
+
                 const notification = document.createElement('div');
                 notification.className = `notification ${type}`;
-                notification.textContent = message;
-                
+
+                // Create enhanced notification structure
+                notification.innerHTML = `
+                    <span class="notification-icon"></span>
+                    <span class="notification-content">${message}</span>
+                    <button class="notification-close" aria-label="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                `;
+
                 container.appendChild(notification);
-                
-                // Show notification
-                setTimeout(() => notification.classList.add('show'), 100);
-                
-                // Remove notification after 3 seconds
+
+                // Add close button functionality
+                const closeBtn = notification.querySelector('.notification-close');
+                closeBtn.addEventListener('click', () => {
+                    notification.classList.add('hiding');
+                    setTimeout(() => notification.remove(), 400);
+                });
+
+                // Show notification with slight delay for animation
+                requestAnimationFrame(() => {
+                    setTimeout(() => notification.classList.add('show'), 50);
+                });
+
+                // Auto-remove after 3 seconds
                 setTimeout(() => {
-                    notification.classList.remove('show');
-                    setTimeout(() => container.removeChild(notification), 300);
+                    if (notification.parentNode) {
+                        notification.classList.add('hiding');
+                        setTimeout(() => notification.remove(), 400);
+                    }
                 }, 3000);
+            }
+
+            // Initialize particle effects
+            setupParticles() {
+                const container = document.getElementById('particles-container');
+                if (!container) return;
+
+                const particleCount = 20;
+                const colors = [
+                    'var(--accent-color)',
+                    'var(--success-color)',
+                    'var(--warning-color)',
+                    'var(--text-tertiary)'
+                ];
+
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+
+                    const size = Math.random() * 8 + 4;
+                    const left = Math.random() * 100;
+                    const delay = Math.random() * 20;
+                    const duration = Math.random() * 20 + 15;
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+
+                    particle.style.width = `${size}px`;
+                    particle.style.height = `${size}px`;
+                    particle.style.left = `${left}%`;
+                    particle.style.animationDelay = `${delay}s`;
+                    particle.style.animationDuration = `${duration}s`;
+                    particle.style.background = color;
+
+                    container.appendChild(particle);
+                }
+
+                // Setup mascot
+                this.setupMascot();
+            }
+
+            // ============================================
+            // MASCOT CHARACTER
+            // ============================================
+            setupMascot() {
+                this.mascotState = {
+                    visible: true,
+                    emotion: 'happy',
+                    speechTimer: null
+                };
+
+                const mascot = document.getElementById('mascot');
+                const mascotToggle = document.getElementById('mascot-toggle');
+                const mascotContainer = document.getElementById('mascot-container');
+
+                // Mascot click interaction
+                mascot?.addEventListener('click', () => this.mascotInteract());
+
+                // Toggle button
+                mascotToggle?.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.toggleMascot();
+                });
+
+                // Show initial greeting after a delay
+                setTimeout(() => {
+                    this.mascotSpeak('hello');
+                }, 2000);
+
+                // Random mascot comments
+                this.startMascotIdleBehavior();
+            }
+
+            toggleMascot() {
+                const container = document.getElementById('mascot-container');
+                const toggleBtn = document.getElementById('mascot-toggle');
+                this.mascotState.visible = !this.mascotState.visible;
+
+                if (this.mascotState.visible) {
+                    container.classList.remove('hidden');
+                    toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+                    this.mascotSpeak('happy');
+                } else {
+                    container.classList.add('hidden');
+                    toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                }
+            }
+
+            mascotInteract() {
+                const reactions = ['happy', 'excited', 'thinking'];
+                const reaction = reactions[Math.floor(Math.random() * reactions.length)];
+                this.setMascotEmotion(reaction);
+
+                const messages = {
+                    happy: ['happy', 'hello'],
+                    excited: ['excited', 'task_complete'],
+                    thinking: ['thinking']
+                };
+
+                const msgArray = messages[reaction];
+                this.mascotSpeak(msgArray[Math.floor(Math.random() * msgArray.length)]);
+
+                // Create heart effect
+                this.createMascotHearts(3);
+
+                // Reset emotion after 2 seconds
+                setTimeout(() => this.setMascotEmotion('happy'), 2000);
+            }
+
+            setMascotEmotion(emotion) {
+                const mascot = document.getElementById('mascot');
+                if (!mascot) return;
+
+                // Remove all emotion classes
+                mascot.classList.remove('happy', 'excited', 'thinking', 'sleepy');
+
+                if (emotion && emotion !== 'happy') {
+                    mascot.classList.add(emotion);
+                }
+
+                this.mascotState.emotion = emotion;
+            }
+
+            mascotSpeak(key) {
+                const speech = document.getElementById('mascot-speech');
+                if (!speech) return;
+
+                const t = translations[this.currentLanguage];
+                const message = t.mascot[key] || t.mascot.hello;
+
+                speech.textContent = message;
+                speech.classList.add('show');
+
+                // Clear previous timer
+                if (this.mascotState.speechTimer) {
+                    clearTimeout(this.mascotState.speechTimer);
+                }
+
+                // Hide after 3 seconds
+                this.mascotState.speechTimer = setTimeout(() => {
+                    speech.classList.remove('show');
+                }, 3000);
+            }
+
+            createMascotHearts(count = 1) {
+                const mascot = document.getElementById('mascot');
+                if (!mascot) return;
+
+                const container = document.getElementById('mascot-container');
+                const rect = mascot.getBoundingClientRect();
+
+                for (let i = 0; i < count; i++) {
+                    setTimeout(() => {
+                        const heart = document.createElement('div');
+                        heart.className = 'mascot-heart';
+                        heart.textContent = ['❤️', '💜', '💖', '✨'][Math.floor(Math.random() * 4)];
+                        heart.style.left = `${Math.random() * 40 + 20}px`;
+                        heart.style.top = '20px';
+                        container.appendChild(heart);
+
+                        setTimeout(() => heart.remove(), 1000);
+                    }, i * 100);
+                }
+            }
+
+            startMascotIdleBehavior() {
+                // mascot comments based on time and progress
+                setInterval(() => {
+                    if (!this.mascotState.visible) return;
+
+                    const hour = new Date().getHours();
+                    let message = 'hello';
+
+                    if (hour < 12) {
+                        message = 'day_start';
+                    } else if (hour > 22) {
+                        message = 'sleepy';
+                        this.setMascotEmotion('sleepy');
+                    }
+
+                    // Random chance to speak
+                    if (Math.random() > 0.7) {
+                        this.mascotSpeak(message);
+                    }
+                }, 60000); // Every minute
+            }
+
+            mascotReactToProgress(percentage) {
+                if (!this.mascotState.visible) return;
+
+                if (percentage >= 100) {
+                    this.setMascotEmotion('excited');
+                    this.mascotSpeak('excited');
+                    this.createMascotHearts(5);
+                } else if (percentage >= 75) {
+                    this.setMascotEmotion('happy');
+                    this.mascotSpeak('happy');
+                    this.createMascotHearts(2);
+                } else if (percentage >= 50) {
+                    this.setMascotEmotion('happy');
+                    this.createMascotHearts(1);
+                }
+            }
+
+            // ============================================
+            // ENHANCED CELEBRATION ANIMATIONS
+            // ============================================
+
+            // Enhanced emoji burst on task completion
+            createEmojiBurst(x, y) {
+                const container = document.getElementById('emoji-burst-container');
+                if (!container) return;
+
+                const emojis = ['🎉', '⭐', '✨', '🌟', '💫', '🎊', '👏', '💪', '🔥', '💯'];
+
+                for (let i = 0; i < 12; i++) {
+                    const emoji = document.createElement('div');
+                    emoji.className = 'emoji-particle';
+                    emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    emoji.style.left = `${x + (Math.random() - 0.5) * 100}px`;
+                    emoji.style.top = `${y}px`;
+                    emoji.style.animationDelay = `${i * 0.05}s`;
+
+                    container.appendChild(emoji);
+
+                    setTimeout(() => emoji.remove(), 1500);
+                }
+            }
+
+            // Rainbow confetti for day completion
+            createRainbowConfetti() {
+                const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3', '#1dd1a1'];
+
+                for (let i = 0; i < 50; i++) {
+                    setTimeout(() => {
+                        const confetti = document.createElement('div');
+                        confetti.className = 'rainbow-confetti';
+                        confetti.style.left = `${Math.random() * 100}vw`;
+                        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                        confetti.style.animationDelay = `${Math.random() * 0.5}s`;
+                        confetti.style.animationDuration = `${2 + Math.random() * 2}s`;
+
+                        document.body.appendChild(confetti);
+
+                        // Trigger animation
+                        requestAnimationFrame(() => confetti.classList.add('animate'));
+
+                        setTimeout(() => confetti.remove(), 4000);
+                    }, i * 50);
+                }
+            }
+
+            // Day complete celebration overlay
+            showDayCompleteCelebration(taskCount, streak) {
+                const overlay = document.getElementById('day-complete-overlay');
+                const tasksEl = document.getElementById('day-complete-tasks');
+                const streakEl = document.getElementById('day-complete-streak');
+                const closeBtn = document.getElementById('day-complete-btn');
+
+                if (!overlay) return;
+
+                tasksEl.textContent = taskCount;
+                streakEl.textContent = streak;
+
+                // Show overlay
+                overlay.classList.add('show');
+
+                // Create confetti
+                this.createRainbowConfetti();
+
+                // Make mascot excited
+                this.setMascotEmotion('excited');
+                this.mascotSpeak('excited');
+
+                // Close button handler
+                const closeHandler = () => {
+                    overlay.classList.remove('show');
+                    closeBtn.removeEventListener('click', closeHandler);
+                    this.setMascotEmotion('happy');
+                };
+
+                closeBtn.addEventListener('click', closeHandler);
+
+                // Auto-close after 5 seconds
+                setTimeout(() => {
+                    if (overlay.classList.contains('show')) {
+                        closeHandler();
+                    }
+                }, 5000);
+            }
+
+            // Update streak counter
+            updateStreak(streak) {
+                const streakCounter = document.getElementById('streak-counter');
+                const streakNumber = document.getElementById('streak-number');
+
+                if (!streakCounter || !streakNumber) return;
+
+                if (streak > 0) {
+                    streakCounter.style.display = 'flex';
+                    streakNumber.textContent = streak;
+                } else {
+                    streakCounter.style.display = 'none';
+                }
             }
         }
 
